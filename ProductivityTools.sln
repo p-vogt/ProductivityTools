@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BorderlessGraphicViewer", "BorderlessGraphicViewer\BorderlessGraphicViewer.csproj", "{91D92092-C8B2-4A2E-BADA-90B02F3A1476}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FeedChecker", "FeedChecker\FeedChecker.csproj", "{D1D0B670-16CB-4128-AEF3-21A131CA3C76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlwaysOnTop", "AlwaysOnTop\AlwaysOnTop.csproj", "{66397596-3291-4C39-8AB4-DC87016E9453}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{91D92092-C8B2-4A2E-BADA-90B02F3A1476}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91D92092-C8B2-4A2E-BADA-90B02F3A1476}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91D92092-C8B2-4A2E-BADA-90B02F3A1476}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91D92092-C8B2-4A2E-BADA-90B02F3A1476}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1D0B670-16CB-4128-AEF3-21A131CA3C76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1D0B670-16CB-4128-AEF3-21A131CA3C76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1D0B670-16CB-4128-AEF3-21A131CA3C76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1D0B670-16CB-4128-AEF3-21A131CA3C76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66397596-3291-4C39-8AB4-DC87016E9453}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66397596-3291-4C39-8AB4-DC87016E9453}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66397596-3291-4C39-8AB4-DC87016E9453}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66397596-3291-4C39-8AB4-DC87016E9453}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,22 @@
+﻿<Window x:Class="FeedChecker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FeedChecker"
+        mc:Ignorable="d"
+        Title="ILIAS-Checker" Height="294" Width="488" MinWidth="300" MinHeight="100" ShowInTaskbar="False" StateChanged="Window_StateChanged">
+    <Grid>
+        <Button x:Name="button" Content="Refresh" HorizontalAlignment="Left" Margin="10,67,0,0" VerticalAlignment="Top" Width="63" Click="button_Click"/>
+        <TreeView x:Name="treeView" Margin="156,10,10,10"/>
+        <Label x:Name="labelNumOfChanges" Content="Number of Changes:" HorizontalAlignment="Left" Margin="10,114,0,0" VerticalAlignment="Top" ContentStringFormat="" Width="120"/>
+        <Label x:Name="labelNumOfChangesValue" Content="0" HorizontalAlignment="Left" Margin="130,114,0,0" VerticalAlignment="Top" ContentStringFormat="" Width="22"/>
+        <Button x:Name="button1" Content="Change Username/PW" HorizontalAlignment="Left" Margin="10,42,0,0" VerticalAlignment="Top" Width="141" Click="btnChangeUser_Click"/>
+        <Button x:Name="btnClear" Content="Clear New Feed List" HorizontalAlignment="Left" Margin="10,92,0,0" VerticalAlignment="Top" Width="141" Click="btnClear_Click"/>
+        <Slider x:Name="slVolume" Margin="10,145,0,0" VerticalAlignment="Top" Height="24" Maximum="1" LargeChange="0.5" Value="{Binding Volume, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" HorizontalAlignment="Left" Width="120"/>
+        <Button x:Name="btnPlaySound" Content="T" Margin="133,145,0,0" Click="btnTestNotification_Click" HorizontalAlignment="Left" Width="18" Height="20" VerticalAlignment="Top"/>
+        <Button x:Name="btnOpenILIAS" Content="Open ILIAS" HorizontalAlignment="Left" Margin="10,17,0,0" VerticalAlignment="Top" Width="76" Click="btnOpenILIAS_Click" RenderTransformOrigin="0.544,0.567"/>
+        <Button x:Name="btnChangeFeedUrl" Content="Feed URL" HorizontalAlignment="Left" Margin="91,17,0,0" VerticalAlignment="Top" Width="60" Click="btnChangeFeedUrl_Click"/>
+        <Button x:Name="btnResetFeed" Content="Reset Feed" HorizontalAlignment="Left" Margin="78,67,0,0" VerticalAlignment="Top" Width="73" Click="btnResetFeed_Click"/>
+    </Grid>
+</Window>
