@@ -1,6 +1,7 @@
 ﻿using mshtml;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -169,9 +170,15 @@ namespace CarrierWatcher
 
         private void NextPage(int pageCnt)
         {
+
             string nextPage = "page_form_page(" + curPage + ", { 'page_count': '"+ pageCnt+"', 'current_page': '" + curPage + "', 'on_change_page': 'page_form_page', 'on_goto_page': 'gotopage_form_page', 'on_change_page_size': 'change_sizepage_form_page' });";
             ExecuteScript(wb.Document, nextPage);
             curPage++;
+        }
+
+        private void btnOpenFolder_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start("explorer.exe", "/select," + NEW_DATA_FILE_NAME);
         }
     }
 }
