@@ -117,7 +117,7 @@ namespace CarrierWatcher
 
             if(curPage<pageCount)
             {
-                NextPage();
+                NextPage(pageCount);
             } else
             {
                 if(analyzedJobs<_list.Count)
@@ -167,9 +167,9 @@ namespace CarrierWatcher
             thisDoc.parentWindow.execScript(js);
         }
 
-        private void NextPage()
+        private void NextPage(int pageCnt)
         {
-            string nextPage = "page_form_page(" + curPage + ", { 'page_count': '6', 'current_page': '" + curPage + "', 'on_change_page': 'page_form_page', 'on_goto_page': 'gotopage_form_page', 'on_change_page_size': 'change_sizepage_form_page' });";
+            string nextPage = "page_form_page(" + curPage + ", { 'page_count': '"+ pageCnt+"', 'current_page': '" + curPage + "', 'on_change_page': 'page_form_page', 'on_goto_page': 'gotopage_form_page', 'on_change_page_size': 'change_sizepage_form_page' });";
             ExecuteScript(wb.Document, nextPage);
             curPage++;
         }
