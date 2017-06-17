@@ -40,6 +40,7 @@ namespace CarrierWatcher
             _list.Clear();
             jobsBielefeld.Clear();
             finishedProcess = false;
+            
             using (var client = new WebClient())
             {
                 client.Encoding = Encoding.UTF8;
@@ -47,38 +48,27 @@ namespace CarrierWatcher
                 client.Proxy = null;                
                String url = @"https://jobs.dmgmori.com/main?fn=bm.ausschreibungsuebersicht&cfg_kbez=Internet";
                 try
-                {
-                    string result = client.DownloadString(url);
-                   
-
-                    //String test = wb.Document.ToString();
-                   
+                {                 
                     wb.Navigate(url);
-                    
 
-                    
-
-
-            
-                    
                 }
                 catch (WebException ex)
                 {
                     // ex.Message -> ...Remoteserver/Remotename... = no internet
                     if (!Regex.IsMatch(ex.Message.ToLower(), ".*(remoteserver|remotename).*"))
                     {
-                        MessageBox.Show("Feed URL / Username / Passwort falsch?\n\n" + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     return;
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Feed URL / Username / Passwort falsch?\n\n" + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
             }
-            }
+        }
         List<String> _list = new List<String>();
         List<String> jobsBielefeld = new List<String>();
         int analyzedJobs = 0;
@@ -131,9 +121,21 @@ namespace CarrierWatcher
                         string jobDesc = (wb.Document as mshtml.IHTMLDocument2).body.outerHTML;
                         Regex regexJobLocation = new Regex(@"<P>Für.*?(?<Ort>BIELEFELD).*?<\/P>", RegexOptions.IgnoreCase);
                         MatchCollection matchesBielefeld = regexJobLocation.Matches(jobDesc);
+  
                         if (matchesBielefeld.Count > 0)
                         {
-                            jobsBielefeld.Add(urlPrefix + _list[analyzedJobs-1]);
+                            String entryText = urlPrefix + _list[analyzedJobs - 1];
+                            
+
+                            Regex regexJobTitle = new Regex("class=\"?advTitle\"?>(?<jobTitle>.*?)<");
+                            MatchCollection matchesJobTitle = regexJobTitle.Matches(jobDesc);
+
+                            if(matchesJobTitle.Count>0)
+                            {
+                                entryText+= " " + matchesJobTitle[0].Groups["jobTitle"].ToString();
+                            }
+                            jobsBielefeld.Add(entryText);
+
                         }
                         
                     }
