@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WpfTrayIcon</name>
+    </assembly>
+    <members>
+        <member name="F:WpfTrayIcon.TrayIcon.menuItemClickHandler">
+            <summary>
+            Stores the delegates of each MenuItem.
+            </summary>
+        </member>
+        <member name="P:WpfTrayIcon.TrayIcon.BalloonTipTime">
+            <summary>
+            The PREFERED Balloon tip show time. OS might ignore/alter the time!
+            </summary>
+        </member>
+        <member name="P:WpfTrayIcon.TrayIcon.BalloonTipText">
+            <summary>
+            Notification Text.
+            </summary>
+        </member>
+        <member name="M:WpfTrayIcon.TrayIcon.ShowBalloonTip">
+            <summary>
+            Shows the notification tip. Uses the Properties <see cref="P:WpfTrayIcon.TrayIcon.BalloonTipTime"/>, <see cref="P:WpfTrayIcon.TrayIcon.BalloonTipTitle"/>
+            <see cref="P:WpfTrayIcon.TrayIcon.BalloonTipText"/>. <see cref="P:WpfTrayIcon.TrayIcon.Visible"/> needs to be true.
+            </summary>
+        </member>
+        <member name="M:WpfTrayIcon.TrayIcon.ShowBalloonTip(WpfTrayIcon.ToolTipIcon)">
+            <summary>
+            Shows the notification tip. Uses the Properties <see cref="P:WpfTrayIcon.TrayIcon.BalloonTipTime"/>, <see cref="P:WpfTrayIcon.TrayIcon.BalloonTipTitle"/>
+            <see cref="P:WpfTrayIcon.TrayIcon.BalloonTipText"/>. <see cref="P:WpfTrayIcon.TrayIcon.Visible"/> needs to be true.
+            </summary>
+            <param name="icon">Notification icon.</param>
+        </member>
+        <member name="M:WpfTrayIcon.TrayIcon.ShowBalloonTip(System.Int32,System.String,System.String,WpfTrayIcon.ToolTipIcon)">
+            <summary>
+            Shows the notification tip. <see cref="P:WpfTrayIcon.TrayIcon.Visible"/> needs to be true.
+            </summary>
+            <param name="time">The PREFERED Balloon tip show time. OS might ignore/alter the time!</param>
+            <param name="tipText">Tooltip text.</param>
+            <param name="tipTitle">Tooltip title.</param>
+            <param name="icon">Tooltip icon (None = use tray icon).</param>
+        </member>
+    </members>
+</doc>

@@ -23,6 +23,8 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Xml;
 using System.Xml.Linq;
+using WpfTrayIcon;
+
 public static class ExtensionMethods
 {
     private static Action EmptyDelegate = delegate () { };
@@ -42,8 +44,9 @@ namespace FeedChecker
         List<ILIASCourse> oldCourseList = new List<ILIASCourse>();
         List<ILIASCourse> changeList = new List<ILIASCourse>();
         MediaPlayer mplayer = new MediaPlayer();
+        private SimpleTrayIcon notifyIcon;
 
-       public double Volume
+        public double Volume
         {
             set
             {
@@ -77,18 +80,11 @@ namespace FeedChecker
 
             Icon = image;
 
-            notifyIcon = new System.Windows.Forms.NotifyIcon();
-
-            notifyIcon.DoubleClick += notifyIcon_DoubleClick;
-
-            notifyIcon.Icon = Properties.Resources.rss_circle_color;
+            notifyIcon = new SimpleTrayIcon(this, Properties.Resources.rss_circle_color);
             notifyIcon.Visible = true;
 
-           notifyIcon.BalloonTipText = "The app has been minimized. Click the tray icon to show.";
-           notifyIcon.BalloonTipTitle = "ILIAS Feed Checker";
-           notifyIcon.Text = "ILIAS Feed Checker";
-            this.WindowState = WindowState.Minimized;
-            this.Visibility = Visibility.Hidden;
+            WindowState = WindowState.Minimized;
+            Visibility = Visibility.Hidden;
             try
             {
                 string olddata = File.ReadAllText(OLD_DATA_FILE_NAME);
@@ -101,7 +97,7 @@ namespace FeedChecker
             }
             getDataAndCompareWithOld();
 
-            System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+            DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1, 0);
             dispatcherTimer.Start();
@@ -208,8 +204,7 @@ namespace FeedChecker
                     {
                         PlaySound();
                         if (notifyIcon != null)
-                            notifyIcon.BalloonTipText = "New ILIAS stuff ("+ changeList.Count + ")!";
-                            notifyIcon.ShowBalloonTip(10000);
+                            notifyIcon.ShowBalloonTip(10000, "New ILIAS stuff (" + changeList.Count + ")!");
                         Visibility = Visibility.Visible;
                         this.ShowInTaskbar = true;
 
@@ -317,7 +312,7 @@ namespace FeedChecker
             labelNumOfChangesValue.Content = "0";
         }
 
-        private System.Windows.Forms.NotifyIcon notifyIcon = null;
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         // This method is called by the Set accessor of each property.
@@ -327,31 +322,11 @@ namespace FeedChecker
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        private void Window_StateChanged(object sender, EventArgs e)
-        {
-            switch (this.WindowState)
-            {
-                case WindowState.Maximized:
-                    break;
-                case WindowState.Minimized:
-                    this.ShowInTaskbar = false;
-                    notifyIcon.Visible = true;
-                    this.Visibility = Visibility.Hidden;
-                    notifyIcon.BalloonTipText = "The app has been minimized. Click the tray icon to show.";
-                    notifyIcon.ShowBalloonTip(2000);
-
-                    break;
-                case WindowState.Normal:
-
-                    break;
-            }
-        }
 
         private void btnTestNotification_Click(object sender, RoutedEventArgs e)
         {
             PlaySound();
-            notifyIcon.BalloonTipText = "New ILIAS stuff (" + changeList.Count + ")!";
-            notifyIcon.ShowBalloonTip(10000);
+            notifyIcon.ShowBalloonTip(10000, "New ILIAS stuff (" + changeList.Count + ")!");
         }
 
         private void btnOpenILIAS_Click(object sender, RoutedEventArgs e)

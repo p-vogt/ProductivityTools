@@ -11,6 +11,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Xml.Serialization;
+using WpfTrayIcon;
 
 namespace WindowOnTop
 {
@@ -19,6 +20,7 @@ namespace WindowOnTop
     /// </summary>
     public partial class MainWindow : Window
     {
+        private TrayIcon trayIcon;
         private HotKey hotkey;
 
         [Serializable()]
@@ -71,7 +73,8 @@ namespace WindowOnTop
         public MainWindow()
         {
             InitializeComponent();
-
+            trayIcon = new SimpleTrayIcon(this, Properties.Resources.top);
+            trayIcon.Visible = true;
             Loaded += (s, e) =>
             {
                 if (File.Exists(filename))
@@ -88,23 +91,7 @@ namespace WindowOnTop
                 }
                 this.WindowState = WindowState.Minimized;
                 this.Visibility = Visibility.Hidden;
-            };
-
-       
-
-            notifyIcon = new System.Windows.Forms.NotifyIcon();
-
-            notifyIcon.DoubleClick += notifyIcon_DoubleClick;
-
-            notifyIcon.Icon = Properties.Resources.top;
-            notifyIcon.Visible = true;
-
-            notifyIcon.BalloonTipText = "The app has been minimized. Click the tray icon to show.";
-            notifyIcon.BalloonTipTitle = "Keep Window On Top";
-            notifyIcon.Text = "Keep Window On Top";
-     
-            
-            
+            };   
         }
 
         Process GetActiveProcess()
@@ -124,11 +111,6 @@ namespace WindowOnTop
         [DllImport("user32.dll")]
         static extern IntPtr GetForegroundWindow();
 
-        [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
-        private static extern IntPtr GetWindowLongPtr32(IntPtr hWnd, GWL nIndex);
-
-        [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
-        private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, GWL nIndex);
 
         [DllImport("user32.dll")]
         static extern bool SetWindowText(IntPtr hWnd, string text);
@@ -137,6 +119,12 @@ namespace WindowOnTop
         static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString,
             int nMaxCount);
 
+
+        [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
+        private static extern IntPtr GetWindowLongPtr32(IntPtr hWnd, GWL nIndex);
+
+        [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
+        private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, GWL nIndex);
 
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         static extern int GetWindowTextLength(IntPtr hWnd);
@@ -205,46 +193,8 @@ namespace WindowOnTop
             return (dwExStyle.ToInt64() & WS_EX_TOPMOST) != 0;
         }
 
-
-
-
-
-        // Notification Icon
-        void notifyIcon_DoubleClick(object sender, EventArgs e)
-        {
-            notifyIcon.Visible = false;
-            ShowInTaskbar = true;
-            //Reihenfolge von Visible und Normal beachten!
-            Visibility = Visibility.Visible;
-            WindowState = WindowState.Normal;
-            Activate();
-        }
-        private System.Windows.Forms.NotifyIcon notifyIcon = null;
-        private void Window_StateChanged(object sender, EventArgs e)
-        {
-            switch (WindowState)
-            {
-                case WindowState.Maximized:
-                    break;
-                case WindowState.Minimized:
-                    ShowInTaskbar = false;
-                    notifyIcon.Visible = true;
-                    Visibility = Visibility.Hidden;
-                    notifyIcon.BalloonTipText = "The app has been minimized. Click the tray icon to show.";
-                    notifyIcon.ShowBalloonTip(2000);
-
-                    break;
-                case WindowState.Normal:
-
-                    break;
-            }
-        }
-        
-
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-           
-
             // no modifierkey fired this event
             if (e.Key != Key.System && e.Key != Key.LeftAlt && e.Key != Key.LeftCtrl && e.Key != Key.LeftShift && e.Key != Key.LWin
             && e.Key != Key.RightAlt && e.Key != Key.RightCtrl && e.Key != Key.RightShift && e.Key != Key.RWin)
@@ -334,6 +284,7 @@ namespace WindowOnTop
                 MessageBox.Show(e.Message);
             }
      
-        }
+        }       
     }
+    
 }

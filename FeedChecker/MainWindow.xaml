@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FeedChecker"
         mc:Ignorable="d"
-        Title="ILIAS-Checker" Height="294" Width="488" MinWidth="300" MinHeight="100" ShowInTaskbar="False" StateChanged="Window_StateChanged">
+        Title="ILIAS-Checker" Height="294" Width="488" MinWidth="300" MinHeight="100" ShowInTaskbar="False">
     <Grid>
         <Button x:Name="button" Content="Refresh" HorizontalAlignment="Left" Margin="10,67,0,0" VerticalAlignment="Top" Width="63" Click="button_Click"/>
         <TreeView x:Name="treeView" Margin="156,10,10,10"/>
