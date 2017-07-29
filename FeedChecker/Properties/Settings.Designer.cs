@@ -61,8 +61,8 @@ namespace FeedChecker.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("https://pvogt:-password-@nbl.fh-bielefeld.de/privfeed.php?client_id=FH-elefeld&us" +
-            "er_id=182803&hash=e29726f5b9de8c243b60f0d074f27ee5")]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://pvogt:-password-@nbl.fh-bielefeld.de/privfeed.php?client_id=FH-Bielefeld&" +
+            "\r\nuser_id=182803&hash=e29726f5b9de8c243b60f0d074f27ee5")]
         public string FEEDURL {
             get {
                 return ((string)(this["FEEDURL"]));

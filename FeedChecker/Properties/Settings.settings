@@ -12,7 +12,8 @@
       <Value Profile="(Default)">0.5</Value>
     </Setting>
     <Setting Name="FEEDURL" Type="System.String" Scope="User">
-      <Value Profile="(Default)">https://pvogt:-password-@nbl.fh-bielefeld.de/privfeed.php?client_id=FH-elefeld&amp;user_id=182803&amp;hash=e29726f5b9de8c243b60f0d074f27ee5</Value>
+      <Value Profile="(Default)">https://pvogt:-password-@nbl.fh-bielefeld.de/privfeed.php?client_id=FH-Bielefeld&amp;
+user_id=182803&amp;hash=e29726f5b9de8c243b60f0d074f27ee5</Value>
     </Setting>
   </Settings>
 </SettingsFile>
