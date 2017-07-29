@@ -38,44 +38,34 @@ namespace CarrierWatcher
         {
             button.IsEnabled = false;
             _list.Clear();
-            jobsBielefeld.Clear();
-            finishedProcess = false;
-            
-            using (var client = new WebClient())
+            jobsBielefeld.Clear();             
+            String url = @"https://jobs.dmgmori.com/main?fn=bm.ausschreibungsuebersicht&cfg_kbez=Internet";
+            try
+            {                 
+                wb.Navigate(url);
+
+            }
+            catch (WebException ex)
             {
-                client.Encoding = Encoding.UTF8;
-
-                client.Proxy = null;                
-               String url = @"https://jobs.dmgmori.com/main?fn=bm.ausschreibungsuebersicht&cfg_kbez=Internet";
-                try
-                {                 
-                    wb.Navigate(url);
-
-                }
-                catch (WebException ex)
-                {
-                    // ex.Message -> ...Remoteserver/Remotename... = no internet
-                    if (!Regex.IsMatch(ex.Message.ToLower(), ".*(remoteserver|remotename).*"))
-                    {
-                        MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    return;
-                }
-                catch (Exception ex)
+                // ex.Message -> ...Remoteserver/Remotename... = no internet
+                if (!Regex.IsMatch(ex.Message.ToLower(), ".*(remoteserver|remotename).*"))
                 {
                     MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
                 }
-
+                return;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
         }
         List<String> _list = new List<String>();
         List<String> jobsBielefeld = new List<String>();
         int analyzedJobs = 0;
-        bool finishedProcess = false;
         private void Wb_LoadCompleted(object sender, NavigationEventArgs e)
         {
-            string result = (wb.Document as mshtml.IHTMLDocument2).body.outerHTML;
+            string result = (wb.Document as IHTMLDocument2).body.outerHTML;
             Regex regexPagecnt = new Regex(@"'page_count':\s'(?<pageCount>\d+)'", RegexOptions.IgnoreCase);
             MatchCollection matchesPageCnt = regexPagecnt.Matches(result);
             int pageCount = 1;
@@ -143,7 +133,6 @@ namespace CarrierWatcher
                 }
                 else
                 {
-                    finishedProcess = true;
                     if (File.Exists(NEW_DATA_FILE_NAME))
                     {
                         if (File.Exists(OLD_DATA_FILE_NAME))
@@ -154,6 +143,7 @@ namespace CarrierWatcher
                     }
                     File.WriteAllLines(NEW_DATA_FILE_NAME, jobsBielefeld);
                     button.IsEnabled = true;
+                    wb.Navigate("www.google.de/search?q=fertig");
                 }
                
             }
