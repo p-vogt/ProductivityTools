@@ -63,9 +63,9 @@ namespace WindowOnTop.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Icon ähnlich wie (Symbol).
         /// </summary>
-        public static System.Drawing.Icon top {
+        public static System.Drawing.Icon ontop {
             get {
-                object obj = ResourceManager.GetObject("top", resourceCulture);
+                object obj = ResourceManager.GetObject("ontop", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }

@@ -73,7 +73,7 @@ namespace WindowOnTop
         public MainWindow()
         {
             InitializeComponent();
-            trayIcon = new SimpleTrayIcon(this, Properties.Resources.top);
+            trayIcon = new SimpleTrayIcon(this, Properties.Resources.ontop);
             trayIcon.Visible = true;
             Loaded += (s, e) =>
             {
@@ -146,21 +146,30 @@ namespace WindowOnTop
         {
             Process window = GetActiveProcess();
             IntPtr windowHandle = window.MainWindowHandle;
-            string windowText = GetWindowText(windowHandle);
+            string windowText = window.MainWindowTitle;//GetWindowText(windowHandle);
             const string appendix = " - (topmost)";
+
             if (IsWindowTopmost(windowHandle))
             {
                 WindowUnsetTopmost(windowHandle);
-                if(windowText.Contains(appendix))
+                WindowUnsetTopmost(window.Handle);
+                if (windowText.Contains(appendix))
                 {
-                    SetWindowText(windowHandle, windowText.Replace(appendix,""));
+                    SetWindowText(windowHandle, windowText.Replace(appendix, ""));
+                }
+                // TODO window text
+                if (windowText.Contains(appendix))
+                {
+                    SetWindowText(windowHandle, windowText.Replace(appendix, ""));
                 }
             }
             else
             {
                 WindowSetTopmost(windowHandle);
-                
+                WindowSetTopmost(window.Handle);
+
                 SetWindowText(windowHandle, windowText + appendix);
+                SetWindowText(window.Handle, windowText + appendix);
             }
         }
 

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WindowOnTop"
         mc:Ignorable="d"
-        Title="Always On Top" Height="117.012" Width="272.041" Icon="Properties/top.ico" PreviewKeyDown="Window_PreviewKeyDown" ResizeMode="CanMinimize" Visibility="Visible">
+        Title="Always On Top" Height="117.012" Width="272.041" Icon="Properties/ontop.ico" PreviewKeyDown="Window_PreviewKeyDown" ResizeMode="CanMinimize" Visibility="Visible">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
