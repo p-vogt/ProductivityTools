@@ -1,0 +1,23 @@
+﻿<Window x:Class="StartupManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:StartupManager"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525" Closing="Window_Closing">
+    <Grid>
+        <DataGrid x:Name="dGridTasks" AutoGenerateColumns="True" Margin="10,10,123,10" ItemsSource="{Binding Model.Tasks, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" RowDetailsVisibilityMode="Visible" CanUserResizeRows="False" BeginningEdit="dGridTasks_BeginningEdit" CanUserReorderColumns="False" CanUserAddRows="False" HeadersVisibility="Column">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Click="btnTestTask_Click">Test</Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Button x:Name="btnAddTask" Content="Add Task" Margin="0,10,10,0" VerticalAlignment="Top" Click="btnAddTask_Click" HorizontalAlignment="Right" Width="75"/>
+    </Grid>
+</Window>
