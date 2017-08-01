@@ -14,9 +14,9 @@ namespace StartupManager
     {
         [XmlArray("Tasks")]
         [XmlArrayItem("Task")]
-        public ObservableCollection<Task> Tasks { get; set; } = new ObservableCollection<Task>();
+        public ObservableCollection<ManagedTask> Tasks { get; set; } = new ObservableCollection<ManagedTask>();
 
-        public void AddTask(Task task)
+        public void AddTask(ManagedTask task)
         {
             Tasks.Add(task);
         }
