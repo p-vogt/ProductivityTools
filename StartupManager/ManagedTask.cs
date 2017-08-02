@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml.Serialization;
@@ -17,8 +18,13 @@ namespace StartupManager
 {
     public class ManagedTask : INotifyPropertyChanged
     {
+
+        public delegate void TaskCompletedCallBack(ManagedTask sender);
+        private TaskCompletedCallBack Callback;
+
         private CancellationTokenSource ct;
         public event PropertyChangedEventHandler PropertyChanged;
+        private System.Timers.Timer timer = new System.Timers.Timer();
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -32,26 +38,30 @@ namespace StartupManager
         {
             Name = name;
             DelayTime = delayTimeMs;
-            FilePath = filePath;
+            TaskPath = filePath;
             IsActivated = isActivated;
             Action = action;
         }
 
         internal void LoadIcon()
         {
-            if(File.Exists(FilePath))
+            if(File.Exists(TaskPath))
             {
-                Bitmap bitmap = System.Drawing.Icon.ExtractAssociatedIcon(FilePath).ToBitmap();
+                Icon tmpicon = System.Drawing.Icon.ExtractAssociatedIcon(TaskPath);
+                if(tmpicon != null)
+                {
+                    Bitmap bitmap = tmpicon.ToBitmap();
 
-                Icon = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                bitmap.GetHbitmap(),
-                IntPtr.Zero,
-                System.Windows.Int32Rect.Empty,
-                BitmapSizeOptions.FromWidthAndHeight(bitmap.Width, bitmap.Height));
+                    Icon =  System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                            bitmap.GetHbitmap(),
+                            IntPtr.Zero,
+                            System.Windows.Int32Rect.Empty,
+                            BitmapSizeOptions.FromWidthAndHeight(bitmap.Width, bitmap.Height));
+                }
+                
             }
         }
 
-        [XmlIgnore]
         private bool isActivated = false;
         public bool IsActivated
         {
@@ -74,7 +84,7 @@ namespace StartupManager
         public StartupAction Action { get; set; }
 
         private string filePath;
-        public string FilePath
+        public string TaskPath
         {
             get
             {
@@ -89,7 +99,6 @@ namespace StartupManager
             }
         }
 
-        [XmlIgnore]
         private ImageSource icon;
         [XmlIgnore]
         public ImageSource Icon
@@ -105,7 +114,6 @@ namespace StartupManager
             }
         }
 
-        [XmlIgnore]
         private bool finished = false;
         [XmlIgnore]
         public bool Finished
@@ -120,18 +128,18 @@ namespace StartupManager
                 OnPropertyChanged();
             }
         }
+
+        private bool stoppedByUser;
         [XmlIgnore]
-        private bool? errorExecuting = null;
-        [XmlIgnore]
-        public bool? ErrorExecuting
+        public bool StoppedByUser
         {
             get
             {
-                return errorExecuting;
+                return stoppedByUser;
             }
             set
             {
-                errorExecuting = value;
+                stoppedByUser = value;
                 OnPropertyChanged();
             }
         }
@@ -142,47 +150,49 @@ namespace StartupManager
             return Name;
         }
 
-
-
-        private bool ExecuteDelayed_internal()
+        public void ExecuteDelayed(TaskCompletedCallBack CallBack)
         {
+            StoppedByUser = false;
+            this.Callback = CallBack;
+          
+            timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+            timer.Interval = (DelayTime * 1000) + 1; // +1 --> allow 0 seconds = instant (1ms)
 
-            ErrorExecuting = null;
-            try
-            {
-                for (int i = 0; i < 1000; ++i) // 1000 -> ms to secs
-                {
-                    Thread.Sleep(DelayTime);
-                    ct.Token.ThrowIfCancellationRequested();
-                }
-                return Execute();
-            }
-            catch (OperationCanceledException)
-            {
+            timer.Enabled = true;
+            timer.AutoReset = false;
+            timer.Start();
 
-            }
-            finally
-            {
-                Finished = true;
-            }
-            return false;
         }
-        public async Task<bool> ExecuteDelayed(CancellationTokenSource ct)
+        private void OnTimedEvent(object source, ElapsedEventArgs e)
         {
-            if(ct == null)
+            timer.Stop();
+            if (StoppedByUser == false)
             {
-                throw new NullReferenceException("ct");
+                Execute();
             }
-            this.ct = ct;
-            Task<bool> task = new Task<bool>(ExecuteDelayed_internal);
-            task.Start();
-            await task;
-            return task.Result;
+            Callback(this);
         }
 
+        public void Stop()
+        {
+            timer.Stop();
+            StoppedByUser = true;
+        }
+        private void StartTask()
+        {
+            if(File.Exists(TaskPath))
+            {
+                Process.Start(TaskPath);
+            } 
+            else if(Directory.Exists(TaskPath))
+            {
+                Process.Start("explorer.exe", TaskPath);
+            }
+           
+        }
         public bool Execute()
         {
-            if (File.Exists(FilePath))
+            if (File.Exists(TaskPath) || Directory.Exists(TaskPath))
             {
                 try
                 {
@@ -192,20 +202,17 @@ namespace StartupManager
                             CloseProcess();
                             break;
                         case StartupAction.Start:
-                            if(!IsProcessRunning())
-                            {
-                                Process.Start(FilePath);
-                            }
+                                StartTask();
                             break;
                         case StartupAction.Restart:
                             CloseProcess();
-                            Process.Start(FilePath);
+                            StartTask();
                             break;
                         default:
                             throw new System.InvalidOperationException("Action state: " + Action);
                             break;  
                     }
-                    ErrorExecuting = false;
+                    StoppedByUser = false;
                     return true;
                 }
                 catch (Exception ex)
@@ -213,7 +220,7 @@ namespace StartupManager
 
                 }
             }
-            ErrorExecuting = true;
+            StoppedByUser = true;
             return false;
         }
 
@@ -236,7 +243,7 @@ namespace StartupManager
                 }
 
 
-                if (processPath == FilePath)
+                if (processPath == TaskPath)
                 {
                     process.Kill();
                     stoppedProcess = true;
@@ -261,8 +268,7 @@ namespace StartupManager
                     continue;
                 }
 
-
-                if (processPath == FilePath)
+                if (processPath == TaskPath)
                 {
                     return true;
                 }

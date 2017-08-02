@@ -13,6 +13,8 @@ using System.Xml.Serialization;
 using System.Drawing;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using StartupManager.Windows;
+using System.Timers;
 
 namespace StartupManager
 {
@@ -21,15 +23,30 @@ namespace StartupManager
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const string OPEN_FILE_DIALOG_FILTER = "All files (*.*)|*.*|Executable (.exe)|*.exe|Batch Files (.bat)|*.bat";
+        private enum ExecutionMode
+        {
+            Normal,
+            Autostart
+        };
+
+        private ExecutionMode appMode = ExecutionMode.Normal;
+
         private const string CONFIG_FILE_NAME = "config.xml";
-        private List<CancellationTokenSource> ctsList = new List<CancellationTokenSource>(); 
         public MainWindowDataModel Model { get; set; } = new MainWindowDataModel();
+        private System.Timers.Timer timer = new System.Timers.Timer(1000);
 
         public MainWindow()
         {
             InitializeComponent();
             Model = LoadConfigFile(CONFIG_FILE_NAME);
+            timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+            timer.Interval = 1000;
+            List<string> args = new List<string>(Environment.GetCommandLineArgs());
+
+            if(args.Contains("-auto"))
+            {
+                appMode = ExecutionMode.Autostart;
+            }
         }
 
         private void button_Click(object sender, RoutedEventArgs e)
@@ -41,38 +58,30 @@ namespace StartupManager
         {
             int index = dGridTasks.SelectedIndex;
             string colName = e.Column.Header.ToString();
-            if (colName == "FilePath")
+            if (colName == "Path")
             {
-                OpenFileDialog dlg = new OpenFileDialog();
-                dlg.InitialDirectory = Path.GetDirectoryName(Model.Tasks[index].FilePath);
-                dlg.Filter = OPEN_FILE_DIALOG_FILTER; // Filter files by extension
-
-                // Show save file dialog box
-                bool? result = dlg.ShowDialog();
+                FileFolderDialog taskTypeWin = new FileFolderDialog();
+                string taskPath = taskTypeWin.ShowDialog();
 
                 // Process save file dialog box results
-                if (result == true)
+                if (taskPath != "")
                 {
-                    Model.Tasks[index].FilePath = dlg.FileName;
+                    Model.Tasks[index].TaskPath = taskPath;
                 }
             }
         }
 
         private void btnAddTask_Click(object sender, RoutedEventArgs e)
         {
-            ManagedTask newTask = new ManagedTask();
-
-            OpenFileDialog dlg = new OpenFileDialog();
-            dlg.Filter = OPEN_FILE_DIALOG_FILTER; // Filter files by extension
-
-            // Show save file dialog box
-            bool? result = dlg.ShowDialog();
-
+            FileFolderDialog taskTypeWin = new FileFolderDialog();
+            string taskPath = taskTypeWin.ShowDialog();
+            
             // Process save file dialog box results
-            if (result == true)
+            if (taskPath != "")
             {
-                newTask.FilePath = dlg.FileName;
-                newTask.Name = Path.GetFileName(dlg.FileName);
+                ManagedTask newTask = new ManagedTask();
+                newTask.TaskPath = taskPath;
+                newTask.Name = Path.GetFileName(taskPath);
                 Model.AddTask(newTask);
             } 
         }
@@ -151,6 +160,11 @@ namespace StartupManager
             {
                 Close();
             }
+
+            if(appMode == ExecutionMode.Autostart)
+            {
+                StartTasks();
+            }
         }
 
         private void dGridTasks_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -173,26 +187,64 @@ namespace StartupManager
             }
         }
 
-        private async void btnSimulateAll_Click(object sender, RoutedEventArgs e)
+        private void OnTimedEvent(object source, ElapsedEventArgs e)
         {
+            ++Model.ElapsedTime;
+        }
+
+        int counter;
+        private void btnSimulateAll_Click(object sender, RoutedEventArgs e)
+        {
+            StartTasks();
+        }
+        static int numOfTasksRemaining;
+        private void ATaskFinished(ManagedTask task)
+        {
+            numOfTasksRemaining--;
+            if(numOfTasksRemaining == 0)
+            {
+                FinishedAllTasks();
+            }
+        }
+        private void StartTasks()
+        {
+            counter = Model.Tasks.Count;
+            btnSimulateAll.IsEnabled = false;
+            Model.ElapsedTime = 0;
+            timer.Start();
+            numOfTasksRemaining = Model.ActiveTasks;
             foreach (ManagedTask task in Model.Tasks)
             {
-                if(task.IsActivated)
+                if (task.IsActivated)
                 {
-                    CancellationTokenSource cts = new CancellationTokenSource();
-                    ctsList.Add(cts);
-                    bool finished = await task.ExecuteDelayed(cts);
-                    
+                    task.ExecuteDelayed(ATaskFinished);
                 }
-            
             }
         }
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
-            foreach(CancellationTokenSource cts in ctsList)
+            timer.Stop();
+            foreach(ManagedTask task in Model.Tasks)
             {
-                cts.Cancel();
+                if(task.IsActivated)
+                {
+                    task.Stop();
+                }
+            }
+            btnSimulateAll.IsEnabled = true;
+        }
+
+        private void FinishedAllTasks()
+        {
+            if(appMode == ExecutionMode.Autostart)
+            {
+                Dispatcher.BeginInvoke(
+                    new Action(() =>
+                    {
+                        Close();
+                    }
+                    ));
             }
         }
     }

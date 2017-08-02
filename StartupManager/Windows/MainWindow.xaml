@@ -4,13 +4,29 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StartupManager"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="430.66" Closing="Window_Closing" Loaded="Window_Loaded">
+        Title="Startup Manager" Height="350" Width="687.264" Closing="Window_Closing" Loaded="Window_Loaded">
+    <Window.Resources>
+        <ObjectDataProvider x:Key="StartupAction" MethodName="GetValues"
+                        ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:StartupAction"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
     <Grid>
-        <DataGrid x:Name="dGridTasks" AutoGenerateColumns="True" Margin="10,10,90,10" ItemsSource="{Binding Model.Tasks, BindsDirectlyToSource=True, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" RowDetailsVisibilityMode="Visible" CanUserResizeRows="False" BeginningEdit="dGridTasks_BeginningEdit" CanUserReorderColumns="False" CanUserAddRows="False" HeadersVisibility="Column" PreviewKeyDown="dGridTasks_PreviewKeyDown">
+        <DataGrid x:Name="dGridTasks" AutoGenerateColumns="False" Margin="10,10,90,10" ItemsSource="{Binding Model.Tasks, BindsDirectlyToSource=True, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" RowDetailsVisibilityMode="Visible" CanUserResizeRows="False" BeginningEdit="dGridTasks_BeginningEdit" CanUserReorderColumns="False" CanUserAddRows="False" HeadersVisibility="Column" PreviewKeyDown="dGridTasks_PreviewKeyDown">
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Style.Triggers>
+                        <!--IsActivated-->
+                        <DataTrigger Binding="{Binding IsActivated}" Value="True">
+                            <Setter Property="Background" Value="White"></Setter>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsActivated}" Value="False">
+                            <Setter Property="Background" Value="Gray"></Setter>
+                        </DataTrigger>
                         <!--ErrorExecuting-->
                         <DataTrigger Binding="{Binding ErrorExecuting}" Value="True">
                             <Setter Property="Background" Value="Red"></Setter>
@@ -21,13 +37,6 @@
                         <DataTrigger Binding="{Binding ErrorExecuting}" Value="null">
                             <Setter Property="Background" Value="White"></Setter>
                         </DataTrigger>
-                        <!--IsActivated-->
-                        <DataTrigger Binding="{Binding IsActivated}" Value="true">
-                            <Setter Property="Background" Value="White"></Setter>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding IsActivated}" Value="false">
-                            <Setter Property="Background" Value="Gray"></Setter>
-                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </DataGrid.RowStyle>
@@ -35,21 +44,30 @@
                 <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Click="btnTestTask_Click">Test</Button>
+                            <Button Click="btnTestTask_Click">
+                                <Image Source="pack://siteoforigin:,,,/execute.png" Width="16"></Image>
+                            </Button>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width="16">
+                <DataGridTemplateColumn Width="16" CanUserResize="False">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Image Source="{Binding Icon}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+                <DataGridCheckBoxColumn Binding="{Binding IsActivated}" Header="Active"/>
+                <DataGridTextColumn Binding="{Binding Name}" ClipboardContentBinding="{x:Null}" Header="Name"/>
+                <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource StartupAction}}" SelectedValueBinding ="{Binding Action}"  Header="Action" TextBinding="{x:Null}"/>
+                <DataGridTextColumn Binding="{Binding DelayTime}" ClipboardContentBinding="{x:Null}" Header="Delay (sec)"/>
+                <DataGridTextColumn Binding="{Binding TaskPath}" ClipboardContentBinding="{x:Null}" Header="Path"/>
+                <DataGridCheckBoxColumn Binding="{Binding Finished}" Header="Finished" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
         <Button x:Name="btnAddTask" Content="Add Task" Margin="0,10,10,0" VerticalAlignment="Top" Click="btnAddTask_Click" HorizontalAlignment="Right" Width="75"/>
         <Button x:Name="btnSimulateAll" Content="Simulate All" Margin="0,35,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="btnSimulateAll_Click"/>
         <Button x:Name="btnStop" Content="Stop" Margin="0,60,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="btnStop_Click"/>
+        <Label x:Name="label" Content="{Binding Model.ElapsedTime, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" Margin="0,80,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Height="28" HorizontalContentAlignment="Center" FontSize="16"/>
     </Grid>
 </Window>
