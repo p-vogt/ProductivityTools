@@ -183,11 +183,14 @@ namespace StartupManager
             if(File.Exists(TaskPath))
             {
                 Process.Start(TaskPath);
+                Finished = true;
             } 
             else if(Directory.Exists(TaskPath))
             {
                 Process.Start("explorer.exe", TaskPath);
+                Finished = true;
             }
+
            
         }
         public bool Execute()
@@ -251,6 +254,7 @@ namespace StartupManager
             }
             return stoppedProcess;
         }
+
         private bool IsProcessRunning()
         {
             Process[] processList = Process.GetProcesses();

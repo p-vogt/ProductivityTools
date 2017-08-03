@@ -1,18 +1,10 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Markup;
 using System.Xml.Serialization;
-using System.Drawing;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using StartupManager.Windows;
 using System.Timers;
 
@@ -33,14 +25,13 @@ namespace StartupManager
 
         private const string CONFIG_FILE_NAME = "config.xml";
         public MainWindowDataModel Model { get; set; } = new MainWindowDataModel();
-        private System.Timers.Timer timer = new System.Timers.Timer(1000);
+        private Timer timer = new Timer(1000);
 
         public MainWindow()
         {
             InitializeComponent();
             Model = LoadConfigFile(CONFIG_FILE_NAME);
             timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
-            timer.Interval = 1000;
             List<string> args = new List<string>(Environment.GetCommandLineArgs());
 
             if(args.Contains("-auto"))
@@ -142,10 +133,6 @@ namespace StartupManager
                     {
                         additionalInfo += "\n" + ex.InnerException.Message;
                     }
-                    else
-                    {
-                        
-                    }
                     MessageBox.Show("Error reading the config file:\n" + additionalInfo, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return null;
                 }
@@ -192,7 +179,6 @@ namespace StartupManager
             ++Model.ElapsedTime;
         }
 
-        int counter;
         private void btnSimulateAll_Click(object sender, RoutedEventArgs e)
         {
             StartTasks();
@@ -208,8 +194,9 @@ namespace StartupManager
         }
         private void StartTasks()
         {
-            counter = Model.Tasks.Count;
+            dGridTasks.IsReadOnly = true;
             btnSimulateAll.IsEnabled = false;
+
             Model.ElapsedTime = 0;
             timer.Start();
             numOfTasksRemaining = Model.ActiveTasks;
@@ -233,6 +220,7 @@ namespace StartupManager
                 }
             }
             btnSimulateAll.IsEnabled = true;
+            dGridTasks.IsReadOnly = false;
         }
 
         private void FinishedAllTasks()
@@ -246,6 +234,7 @@ namespace StartupManager
                     }
                     ));
             }
+            dGridTasks.IsReadOnly = false;
         }
     }
 }
