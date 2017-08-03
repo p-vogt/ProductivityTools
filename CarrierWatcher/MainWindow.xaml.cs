@@ -28,6 +28,9 @@ namespace CarrierWatcher
     {
         private const string OLD_DATA_FILE_NAME = @"urls_old.txt";
         private const string NEW_DATA_FILE_NAME = @"urls.txt";
+
+        private const string NEW_JOBS_FILE_NAME = @"new.txt";
+        private const string REMOVED_JOBS_FILE_NAME = @"removed.txt";
         public MainWindow()
         {
             InitializeComponent();
@@ -38,8 +41,8 @@ namespace CarrierWatcher
         {
             button.IsEnabled = false;
             _list.Clear();
-            jobsBielefeld.Clear();             
-            String url = @"https://jobs.dmgmori.com/main?fn=bm.ausschreibungsuebersicht&cfg_kbez=Internet";
+            jobsBielefeld.Clear();
+            string url = @"https://jobs.dmgmori.com/main?fn=bm.ausschreibungsuebersicht&cfg_kbez=Internet";
             try
             {                 
                 wb.Navigate(url);
@@ -60,8 +63,8 @@ namespace CarrierWatcher
                 return;
             }
         }
-        List<String> _list = new List<String>();
-        List<String> jobsBielefeld = new List<String>();
+        List<string> _list = new List<string>();
+        List<string> jobsBielefeld = new List<string>();
         int analyzedJobs = 0;
         private void Wb_LoadCompleted(object sender, NavigationEventArgs e)
         {
@@ -103,7 +106,7 @@ namespace CarrierWatcher
             {
                 if(analyzedJobs<_list.Count)
                 {
-                    String urlPrefix = "https://jobs.dmgmori.com/main?fn=bm.jobsdetail&refnr=";
+                    string urlPrefix = "https://jobs.dmgmori.com/main?fn=bm.jobsdetail&refnr=";
                     wb.Navigate(urlPrefix + _list[analyzedJobs]);
 
                     if (analyzedJobs>0 && analyzedJobs <= _list.Count)
@@ -171,6 +174,31 @@ namespace CarrierWatcher
         private void btnOpenFolder_Click(object sender, RoutedEventArgs e)
         {
             Process.Start("explorer.exe", "/select," + NEW_DATA_FILE_NAME);
+        }
+
+        private void btnCompare_Click(object sender, RoutedEventArgs e)
+        {
+            List<string> removedJobs;
+            List<string> addedJobs;
+
+            if (File.Exists(NEW_DATA_FILE_NAME) 
+             && File.Exists(OLD_DATA_FILE_NAME))
+            {
+                var oldFileContent = File.ReadAllLines(OLD_DATA_FILE_NAME);
+                var newFileContent = File.ReadAllLines(NEW_DATA_FILE_NAME);
+                removedJobs = oldFileContent.Except(newFileContent).ToList();
+                addedJobs = newFileContent.Except(oldFileContent).ToList();
+
+                File.WriteAllLines(REMOVED_JOBS_FILE_NAME, removedJobs);
+                File.WriteAllLines(NEW_JOBS_FILE_NAME, addedJobs);
+
+                DiffWindow diffWindow = new DiffWindow(removedJobs, addedJobs);
+                diffWindow.ShowDialog();
+            } 
+            else
+            {
+                MessageBox.Show("Eine der Dateien existiert nicht.","Error",MessageBoxButton.OK,MessageBoxImage.Error);
+            }
         }
     }
 }
