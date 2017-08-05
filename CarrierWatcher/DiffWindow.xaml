@@ -5,10 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CarrierWatcher"
         mc:Ignorable="d"
-        Title="DiffWindow" Height="300" Width="682.48">
+        Title="DiffWindow" Height="234" Width="1018.48">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="192*"/>
+            <ColumnDefinition Width="100
+                              *"/>
             <ColumnDefinition Width="5"/>
             <ColumnDefinition Width="145*"/>
         </Grid.ColumnDefinitions>
@@ -26,7 +27,7 @@
                 </DataGridHyperlinkColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <GridSplitter x:Name="gridSplitter" HorizontalAlignment="Stretch" Grid.Column="1" Margin="0,0,0,38"/>
+        <GridSplitter x:Name="gridSplitter" HorizontalAlignment="Stretch" Grid.Column="1"/>
 
         <DataGrid x:Name="dGridAdded" ItemsSource="{Binding AddedJobs, ElementName=window}" AutoGenerateColumns="False" IsReadOnly="True" Grid.Column="2" Margin="5,26,10,10">
             <DataGrid.Columns>
