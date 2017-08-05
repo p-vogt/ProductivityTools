@@ -23,14 +23,14 @@ namespace StartupManager
         [XmlArray("Tasks")]
         [XmlArrayItem("Task")]
         public ObservableCollection<ManagedTask> Tasks { get; set; } = new ObservableCollection<ManagedTask>();
-        
+
+        private int elapsedTime = 0;
         public int ElapsedTime
         {
             get
             {
                 return elapsedTime;
             }
-
             set
             {
                 elapsedTime = value;
@@ -38,7 +38,6 @@ namespace StartupManager
             }
         }
 
-        private int elapsedTime = 0;
         public void AddTask(ManagedTask task)
         {
             Tasks.Add(task);

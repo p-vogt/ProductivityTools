@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -20,11 +16,13 @@ namespace StartupManager
     {
 
         public delegate void TaskCompletedCallBack(ManagedTask sender);
+
         private TaskCompletedCallBack Callback;
 
         private CancellationTokenSource ct;
         public event PropertyChangedEventHandler PropertyChanged;
         private System.Timers.Timer timer = new System.Timers.Timer();
+
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -143,7 +141,6 @@ namespace StartupManager
                 OnPropertyChanged();
             }
         }
-
 
         public override string ToString()
         {
