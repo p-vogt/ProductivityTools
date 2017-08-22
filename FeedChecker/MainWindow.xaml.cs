@@ -7,6 +7,7 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -123,7 +124,7 @@ namespace FeedChecker
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            getDataAndCompareWithOld();
+            Task.Run(() => getDataAndCompareWithOld());
         }
 
         private void getDataAndCompareWithOld()
