@@ -7,17 +7,8 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Xml.Linq;
 
 namespace CarrierWatcher
 {
@@ -44,7 +35,7 @@ namespace CarrierWatcher
             jobsBielefeld.Clear();
             string url = @"https://jobs.dmgmori.com/main?fn=bm.ausschreibungsuebersicht&cfg_kbez=Internet";
             try
-            {                 
+            {
                 wb.Navigate(url);
 
             }
@@ -84,7 +75,7 @@ namespace CarrierWatcher
 
             MatchCollection matchesTable = regexTable.Matches(result);
 
-             
+
             foreach (Match mt in matchesTable)
             {
                 MatchCollection matchesTRefnr = regexRefnr.Matches(mt.Groups[0].ToString());
@@ -99,38 +90,39 @@ namespace CarrierWatcher
                 }
             }
 
-            if(curPage<pageCount)
+            if (curPage < pageCount)
             {
                 NextPage(pageCount);
-            } else
+            }
+            else
             {
-                if(analyzedJobs<_list.Count)
+                if (analyzedJobs < _list.Count)
                 {
                     string urlPrefix = "https://jobs.dmgmori.com/main?fn=bm.jobsdetail&refnr=";
                     wb.Navigate(urlPrefix + _list[analyzedJobs]);
 
-                    if (analyzedJobs>0 && analyzedJobs <= _list.Count)
+                    if (analyzedJobs > 0 && analyzedJobs <= _list.Count)
                     {
                         string jobDesc = (wb.Document as mshtml.IHTMLDocument2).body.outerHTML;
                         Regex regexJobLocation = new Regex(@"<P>Für.*?(?<Ort>BIELEFELD).*?<\/P>", RegexOptions.IgnoreCase);
                         MatchCollection matchesBielefeld = regexJobLocation.Matches(jobDesc);
-  
+
                         if (matchesBielefeld.Count > 0)
                         {
                             String entryText = urlPrefix + _list[analyzedJobs - 1];
-                            
+
 
                             Regex regexJobTitle = new Regex("class=\"?advTitle\"?>(?<jobTitle>.*?)<");
                             MatchCollection matchesJobTitle = regexJobTitle.Matches(jobDesc);
 
-                            if(matchesJobTitle.Count>0)
+                            if (matchesJobTitle.Count > 0)
                             {
-                                entryText+= " " + matchesJobTitle[0].Groups["jobTitle"].ToString();
+                                entryText += " " + matchesJobTitle[0].Groups["jobTitle"].ToString();
                             }
                             jobsBielefeld.Add(entryText);
 
                         }
-                        
+
                     }
                     analyzedJobs++;
                 }
@@ -148,7 +140,7 @@ namespace CarrierWatcher
                     button.IsEnabled = true;
                     wb.Navigate("www.google.de/search?q=fertig");
                 }
-               
+
             }
 
         }
@@ -166,7 +158,7 @@ namespace CarrierWatcher
         private void NextPage(int pageCnt)
         {
 
-            string nextPage = "page_form_page(" + curPage + ", { 'page_count': '"+ pageCnt+"', 'current_page': '" + curPage + "', 'on_change_page': 'page_form_page', 'on_goto_page': 'gotopage_form_page', 'on_change_page_size': 'change_sizepage_form_page' });";
+            string nextPage = "page_form_page(" + curPage + ", { 'page_count': '" + pageCnt + "', 'current_page': '" + curPage + "', 'on_change_page': 'page_form_page', 'on_goto_page': 'gotopage_form_page', 'on_change_page_size': 'change_sizepage_form_page' });";
             ExecuteScript(wb.Document, nextPage);
             curPage++;
         }
@@ -181,7 +173,7 @@ namespace CarrierWatcher
             List<string> removedJobs;
             List<string> addedJobs;
 
-            if (File.Exists(NEW_DATA_FILE_NAME) 
+            if (File.Exists(NEW_DATA_FILE_NAME)
              && File.Exists(OLD_DATA_FILE_NAME))
             {
                 var oldFileContent = File.ReadAllLines(OLD_DATA_FILE_NAME);
@@ -194,10 +186,10 @@ namespace CarrierWatcher
 
                 DiffWindow diffWindow = new DiffWindow(removedJobs, addedJobs);
                 diffWindow.ShowDialog();
-            } 
+            }
             else
             {
-                MessageBox.Show("Eine der Dateien existiert nicht.","Error",MessageBoxButton.OK,MessageBoxImage.Error);
+                MessageBox.Show("Eine der Dateien existiert nicht.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
