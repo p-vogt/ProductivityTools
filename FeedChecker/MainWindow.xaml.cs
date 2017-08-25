@@ -49,7 +49,7 @@ namespace FeedChecker
                 Properties.Settings.Default.Save();
                 NotifyPropertyChanged();
             }
-           get { return mplayer.Volume; }
+            get { return mplayer.Volume; }
         }
 
         private const string OLD_DATA_FILE_NAME = @"olddata.txt";
@@ -124,12 +124,16 @@ namespace FeedChecker
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            Task.Run(() => getDataAndCompareWithOld());
+            Task.Run(() => getDataAndCompareWithOld(true));
         }
 
-        private void getDataAndCompareWithOld()
+        private void getDataAndCompareWithOld(bool msgBoxWhenFinished = false)
         {
-            treeView.Items.Clear();
+            Dispatcher.Invoke(() =>
+            {
+                treeView.Items.Clear();
+            });
+
             string rssFeedUrl = Properties.Settings.Default.FEEDURL;
             if (rssFeedUrl == "")
             {
@@ -155,16 +159,24 @@ namespace FeedChecker
                 }
                 catch (WebException ex)
                 {
+                    string msg = ex.Message.ToLower();
                     // ex.Message -> ...Remoteserver/Remotename... = no internet
-                    if (!Regex.IsMatch(ex.Message.ToLower(), ".*(remoteserver|remotename).*"))
+                    if (!Regex.IsMatch(msg, ".*(remoteserver|remotename).*") | msg.Contains("(401)")) // 401 => not authorized
                     {
-                        MessageBox.Show("Feed URL / Username / Passwort falsch?\n\n" + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                        Dispatcher.Invoke(() =>
+                        {
+                            MessageBox.Show("Feed URL / Username / Passwort falsch?\n\n" + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
                     }
                     return;
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Feed URL / Username / Passwort falsch?\n\n" + ex.Message,"Error",MessageBoxButton.OK,MessageBoxImage.Error);
+                    Dispatcher.Invoke(() =>
+                    {
+                        MessageBox.Show("Feed URL / Username / Passwort falsch?\n\n" + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    });
                     return;
                 }
 
@@ -188,7 +200,10 @@ namespace FeedChecker
                 }
 
                 oldCourseList = newCourseList;
-                labelNumOfChangesValue.Content = changeList.Count.ToString();
+                Dispatcher.Invoke(() =>
+                {
+                    labelNumOfChangesValue.Content = changeList.Count.ToString();
+                });
                 if (newChangeList.Count > 0)
                 {
                     try
@@ -196,17 +211,32 @@ namespace FeedChecker
                         PlaySound();
                         if (notifyIcon != null)
                             notifyIcon.ShowBalloonTip(10000, "New ILIAS stuff (" + changeList.Count + ")!");
-                        Visibility = Visibility.Visible;
-                        this.ShowInTaskbar = true;
+                        Dispatcher.Invoke(() =>
+                        {
+                            Visibility = Visibility.Visible;
+                            this.ShowInTaskbar = true;
+                        });
 
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(ex.Message);
+                        Dispatcher.Invoke(() =>
+                        {
+                            MessageBox.Show(ex.Message);
+                        });
+                        return;
                     }
                 }
             }
+            if (msgBoxWhenFinished)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show("Finished!", "Finished", MessageBoxButton.OK, MessageBoxImage.Information);
+                });
+            }
         }
+
 
         private List<ILIASCourse> CompareCourseLists(List<ILIASCourse> oldList, List<ILIASCourse> newList)
         {
@@ -229,8 +259,8 @@ namespace FeedChecker
 
         void OnLinkClick(object sender, RoutedEventArgs e)
         {
-            TreeViewItem thisItem = (TreeViewItem) sender;
-            ILIASCourse course = (ILIASCourse) thisItem.DataContext;
+            TreeViewItem thisItem = (TreeViewItem)sender;
+            ILIASCourse course = (ILIASCourse)thisItem.DataContext;
             System.Diagnostics.Process.Start(course.guid.Replace("amp;", ""));
         }
 
@@ -283,12 +313,12 @@ namespace FeedChecker
 
         private void btnChangeUser_Click(object sender, RoutedEventArgs e)
         {
-            var dialogUserName = new MyDialog("Enter username:");
+            var dialogUserName = new MyDialog("Enter username:", false);
             if (dialogUserName.ShowDialog() == true)
             {
                 Properties.Settings.Default.USERNAME = dialogUserName.ResponseText;
             }
-            var dialogPassword = new MyDialog("Enter password:");
+            var dialogPassword = new MyDialog("Enter password:", true);
             if (dialogPassword.ShowDialog() == true)
             {
                 Properties.Settings.Default.PASSWORD = dialogPassword.ResponseText;
@@ -327,7 +357,7 @@ namespace FeedChecker
 
         private void btnChangeFeedUrl_Click(object sender, RoutedEventArgs e)
         {
-            var dialogUserName = new MyDialog("Enter Feed URL:");
+            var dialogUserName = new MyDialog("Enter Feed URL:", false);
             if (dialogUserName.ShowDialog() == true)
             {
                 Properties.Settings.Default.FEEDURL = dialogUserName.ResponseText;
@@ -338,7 +368,7 @@ namespace FeedChecker
         private void btnResetFeed_Click(object sender, RoutedEventArgs e)
         {
             oldCourseList.Clear();
-            File.WriteAllText(OLD_DATA_FILE_NAME,"");
+            File.WriteAllText(OLD_DATA_FILE_NAME, "");
         }
     }
 }

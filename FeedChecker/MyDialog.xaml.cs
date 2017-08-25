@@ -1,16 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace FeedChecker
 {
@@ -20,17 +9,38 @@ namespace FeedChecker
     partial class MyDialog : Window
     {
 
-        public MyDialog(string messageText)
+        private bool _usePasswordBox;
+        public MyDialog(string messageText, bool usePasswordBox)
         {
             InitializeComponent();
             this.labelMessage.Content = messageText;
-            this.tBoxInput.Focus();
+            _usePasswordBox = usePasswordBox;
+            if (usePasswordBox)
+            {
+                tBoxInput.Visibility = Visibility.Hidden;
+                this.tBoxPassword.Focus();
+            }
+            else
+            {
+                tBoxPassword.Visibility = Visibility.Hidden;
+                this.tBoxInput.Focus();
+            }
         }
 
         public string ResponseText
         {
-            get { return tBoxInput.Text; }
-            set { tBoxInput.Text = value; }
+            get
+            {
+                if (_usePasswordBox)
+                {
+                    return tBoxPassword.Password;
+                }
+                else
+                {
+                    return tBoxInput.Text;
+                }
+
+            }
         }
 
         private void btnOk_Click(object sender, RoutedEventArgs e)
@@ -40,7 +50,7 @@ namespace FeedChecker
 
         private void tBoxInput_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter || e.Key == Key.Return )
+            if (e.Key == Key.Enter || e.Key == Key.Return)
             {
                 btnOk_Click(null, null);
             }
