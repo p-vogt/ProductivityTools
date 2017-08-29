@@ -144,7 +144,13 @@ namespace FeedChecker
             {
                 client.Encoding = Encoding.UTF8;
 
-                client.Proxy = null;
+                IWebProxy defaultProxy = WebRequest.DefaultWebProxy;
+                if (defaultProxy != null)
+                {
+                    defaultProxy.Credentials = CredentialCache.DefaultCredentials;
+                    client.Proxy = defaultProxy;
+                }
+
                 client.UseDefaultCredentials = false;
                 client.Credentials = new NetworkCredential(Properties.Settings.Default.USERNAME,
                     Properties.Settings.Default.PASSWORD);
@@ -153,7 +159,7 @@ namespace FeedChecker
                 {
                     string result = client.DownloadString(rssFeedUrl);
 
-                    System.IO.File.WriteAllText(OLD_DATA_FILE_NAME, result);
+                    File.WriteAllText(OLD_DATA_FILE_NAME, result);
                     XDocument doc = XDocument.Parse(result);
                     newCourseList = XDocToILIASCourseList(doc);
                 }
@@ -360,7 +366,7 @@ namespace FeedChecker
             var dialogUserName = new MyDialog("Enter Feed URL:", false);
             if (dialogUserName.ShowDialog() == true)
             {
-                Properties.Settings.Default.FEEDURL = dialogUserName.ResponseText;
+                Properties.Settings.Default.FEEDURL = dialogUserName.ResponseText.Replace("\n", "").Replace("\r", "");
                 Properties.Settings.Default.Save();
             }
         }
