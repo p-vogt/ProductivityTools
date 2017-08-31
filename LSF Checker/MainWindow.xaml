@@ -1,0 +1,24 @@
+﻿<Window x:Class="LSF_Checker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LSF_Checker"
+        mc:Ignorable="d"
+        Title="LSF Checker" Height="450" Width="555">
+    <Grid>
+        <WebBrowser x:Name="browser" Margin="0,0,542,348" Visibility="Hidden"/>
+        <Button x:Name="btnStart" Content="Start" HorizontalAlignment="Left" Margin="377,10,0,0" VerticalAlignment="Top" Width="75" Click="button_Click"/>
+        <ListView x:Name="lViewModules" HorizontalAlignment="Left" Height="380" Margin="10,10,0,0" VerticalAlignment="Top" Width="362" RenderTransformOrigin="-0.34,-0.12">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="500"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Button x:Name="button1" Content="Change Username/PW" HorizontalAlignment="Left" Margin="377,51,0,0" VerticalAlignment="Top" Width="141" Click="btnChangeUser_Click"/>
+        <CheckBox x:Name="cBoxGetMaster" Content="Master" HorizontalAlignment="Left" Margin="457,12,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.507,-0.9" Checked="cBoxGetMaster_Checked" Unchecked="cBoxGetMaster_Checked"/>
+        <ProgressBar x:Name="progressBar" HorizontalAlignment="Left" Height="26" Margin="377,154,0,0" VerticalAlignment="Top" Width="150"/>
+
+    </Grid>
+</Window>
