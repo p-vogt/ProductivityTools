@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Navigation;
@@ -27,10 +26,13 @@ namespace CarrierWatcher
             InitializeComponent();
             wb.LoadCompleted += Wb_LoadCompleted;
         }
-        private int curPage = 1;
+        private int curPage;
         private void button_Click(object sender, RoutedEventArgs e)
         {
+            curPage = 1;
+            Properties.Settings.Default.Save();
             button.IsEnabled = false;
+            tBoxLocation.IsEnabled = false;
             _list.Clear();
             jobsBielefeld.Clear();
             string url = @"https://jobs.dmgmori.com/main?fn=bm.ausschreibungsuebersicht&cfg_kbez=Internet";
@@ -59,6 +61,7 @@ namespace CarrierWatcher
         int analyzedJobs = 0;
         private void Wb_LoadCompleted(object sender, NavigationEventArgs e)
         {
+            string location = Properties.Settings.Default.LOCATION;
             string result = (wb.Document as IHTMLDocument2).body.outerHTML;
             Regex regexPagecnt = new Regex(@"'page_count':\s'(?<pageCount>\d+)'", RegexOptions.IgnoreCase);
             MatchCollection matchesPageCnt = regexPagecnt.Matches(result);
@@ -104,7 +107,7 @@ namespace CarrierWatcher
                     if (analyzedJobs > 0 && analyzedJobs <= _list.Count)
                     {
                         string jobDesc = (wb.Document as mshtml.IHTMLDocument2).body.outerHTML;
-                        Regex regexJobLocation = new Regex(@"<P>Für.*?(?<Ort>BIELEFELD).*?<\/P>", RegexOptions.IgnoreCase);
+                        Regex regexJobLocation = new Regex(@"<P>Für.*?(?<Ort>" + location + @").*?<\/P>", RegexOptions.IgnoreCase);
                         MatchCollection matchesBielefeld = regexJobLocation.Matches(jobDesc);
 
                         if (matchesBielefeld.Count > 0)
@@ -128,16 +131,17 @@ namespace CarrierWatcher
                 }
                 else
                 {
-                    if (File.Exists(NEW_DATA_FILE_NAME))
+                    if (File.Exists(location+NEW_DATA_FILE_NAME))
                     {
-                        if (File.Exists(OLD_DATA_FILE_NAME))
+                        if (File.Exists(location + OLD_DATA_FILE_NAME))
                         {
-                            File.Delete(OLD_DATA_FILE_NAME);
+                            File.Delete(location + OLD_DATA_FILE_NAME);
                         }
-                        File.Copy(NEW_DATA_FILE_NAME, OLD_DATA_FILE_NAME);
+                        File.Copy(location + NEW_DATA_FILE_NAME, location + OLD_DATA_FILE_NAME);
                     }
-                    File.WriteAllLines(NEW_DATA_FILE_NAME, jobsBielefeld);
+                    File.WriteAllLines(location + NEW_DATA_FILE_NAME, jobsBielefeld);
                     button.IsEnabled = true;
+                    tBoxLocation.IsEnabled = true;
                     wb.Navigate("www.google.de/search?q=fertig");
                 }
 
@@ -165,19 +169,21 @@ namespace CarrierWatcher
 
         private void btnOpenFolder_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start("explorer.exe", "/select," + NEW_DATA_FILE_NAME);
+            string location = Properties.Settings.Default.LOCATION;
+            Process.Start("explorer.exe", "/select," + location+NEW_DATA_FILE_NAME);
         }
 
         private void btnCompare_Click(object sender, RoutedEventArgs e)
         {
             List<string> removedJobs;
             List<string> addedJobs;
+            string location = Properties.Settings.Default.LOCATION;
 
-            if (File.Exists(NEW_DATA_FILE_NAME)
-             && File.Exists(OLD_DATA_FILE_NAME))
+            if (File.Exists(location + NEW_DATA_FILE_NAME)
+             && File.Exists(location + OLD_DATA_FILE_NAME))
             {
-                var oldFileContent = File.ReadAllLines(OLD_DATA_FILE_NAME);
-                var newFileContent = File.ReadAllLines(NEW_DATA_FILE_NAME);
+                var oldFileContent = File.ReadAllLines(location + OLD_DATA_FILE_NAME);
+                var newFileContent = File.ReadAllLines(location + NEW_DATA_FILE_NAME);
                 removedJobs = oldFileContent.Except(newFileContent).ToList();
                 addedJobs = newFileContent.Except(oldFileContent).ToList();
 
