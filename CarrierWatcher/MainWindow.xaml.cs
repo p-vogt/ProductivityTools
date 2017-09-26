@@ -131,7 +131,7 @@ namespace CarrierWatcher
                 }
                 else
                 {
-                    if (File.Exists(location+NEW_DATA_FILE_NAME))
+                    if (File.Exists(location + NEW_DATA_FILE_NAME))
                     {
                         if (File.Exists(location + OLD_DATA_FILE_NAME))
                         {
@@ -142,6 +142,7 @@ namespace CarrierWatcher
                     File.WriteAllLines(location + NEW_DATA_FILE_NAME, jobsBielefeld);
                     button.IsEnabled = true;
                     tBoxLocation.IsEnabled = true;
+                    btnCompare_Click(null, null);
                     wb.Navigate("www.google.de/search?q=fertig");
                 }
 
@@ -170,7 +171,7 @@ namespace CarrierWatcher
         private void btnOpenFolder_Click(object sender, RoutedEventArgs e)
         {
             string location = Properties.Settings.Default.LOCATION;
-            Process.Start("explorer.exe", "/select," + location+NEW_DATA_FILE_NAME);
+            Process.Start("explorer.exe", "/select," + location + NEW_DATA_FILE_NAME);
         }
 
         private void btnCompare_Click(object sender, RoutedEventArgs e)
