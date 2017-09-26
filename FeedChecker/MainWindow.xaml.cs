@@ -167,7 +167,8 @@ namespace FeedChecker
                 {
                     string msg = ex.Message.ToLower();
                     // ex.Message -> ...Remoteserver/Remotename... = no internet
-                    if (!Regex.IsMatch(msg, ".*(remoteserver|remotename).*") | msg.Contains("(401)")) // 401 => not authorized
+                    if ((!Regex.IsMatch(msg, ".*(remoteserver|remotename).*") && !msg.Contains("timeout"))
+                       || msg.Contains("(401)")) // 401 => not authorized
                     {
 
                         Dispatcher.Invoke(() =>
