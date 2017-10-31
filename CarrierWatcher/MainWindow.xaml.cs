@@ -30,6 +30,7 @@ namespace CarrierWatcher
         private void button_Click(object sender, RoutedEventArgs e)
         {
             curPage = 1;
+            analyzedJobs = 0;
             Properties.Settings.Default.Save();
             button.IsEnabled = false;
             tBoxLocation.IsEnabled = false;
@@ -58,7 +59,7 @@ namespace CarrierWatcher
         }
         List<string> _list = new List<string>();
         List<string> jobsBielefeld = new List<string>();
-        int analyzedJobs = 0;
+        int analyzedJobs;
         private void Wb_LoadCompleted(object sender, NavigationEventArgs e)
         {
             string location = Properties.Settings.Default.LOCATION;
