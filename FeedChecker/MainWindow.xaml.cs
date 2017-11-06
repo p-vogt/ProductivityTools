@@ -131,6 +131,7 @@ namespace FeedChecker
         {
             Dispatcher.Invoke(() =>
             {
+                labelNumOfChangesValue.Content = 0;
                 treeView.Items.Clear();
             });
 
@@ -375,6 +376,7 @@ namespace FeedChecker
         private void btnResetFeed_Click(object sender, RoutedEventArgs e)
         {
             oldCourseList.Clear();
+            labelNumOfChangesValue.Content = 0;
             File.WriteAllText(OLD_DATA_FILE_NAME, "");
         }
     }
