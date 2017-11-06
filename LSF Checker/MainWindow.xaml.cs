@@ -52,6 +52,8 @@ namespace LSF_Checker
 
             notifyIcon = new SimpleTrayIcon(this);
             notifyIcon.Visible = true;
+            WindowState = WindowState.Minimized;
+            Visibility = Visibility.Hidden;
         }
 
         private void button_Click(object sender, RoutedEventArgs e)
