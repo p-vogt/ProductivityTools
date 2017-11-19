@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickAccessOverlay", "Quick
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LSF Checker", "LSF Checker\LSF Checker.csproj", "{1E2890FE-F7F2-42AC-BD0A-C473B05BF24C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Git-Svn-Console", "Git-Svn-Console\Git-Svn-Console.csproj", "{1ED2ABA9-2B98-4740-8722-3F84F27A5FA7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,14 @@ Global
 		{1E2890FE-F7F2-42AC-BD0A-C473B05BF24C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1E2890FE-F7F2-42AC-BD0A-C473B05BF24C}.Release|x64.ActiveCfg = Release|Any CPU
 		{1E2890FE-F7F2-42AC-BD0A-C473B05BF24C}.Release|x64.Build.0 = Release|Any CPU
+		{1ED2ABA9-2B98-4740-8722-3F84F27A5FA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1ED2ABA9-2B98-4740-8722-3F84F27A5FA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1ED2ABA9-2B98-4740-8722-3F84F27A5FA7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1ED2ABA9-2B98-4740-8722-3F84F27A5FA7}.Debug|x64.Build.0 = Debug|Any CPU
+		{1ED2ABA9-2B98-4740-8722-3F84F27A5FA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1ED2ABA9-2B98-4740-8722-3F84F27A5FA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1ED2ABA9-2B98-4740-8722-3F84F27A5FA7}.Release|x64.ActiveCfg = Release|Any CPU
+		{1ED2ABA9-2B98-4740-8722-3F84F27A5FA7}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
