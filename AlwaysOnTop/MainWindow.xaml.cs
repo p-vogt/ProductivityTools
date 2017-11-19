@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Threading;
 using System.Windows;
 using System.Windows.Input;
-using System.Xml.Serialization;
 using WpfTrayIcon;
 
 namespace WindowOnTop
@@ -82,7 +77,7 @@ namespace WindowOnTop
                     try
                     {
                         LoadSettings();
-                        btnActivate_Click(null,null); // register hotkey
+                        btnActivate_Click(null, null); // register hotkey
                         UpdateHotkeyLabel();
                     }
                     catch (Exception)
@@ -91,7 +86,7 @@ namespace WindowOnTop
                 }
                 this.WindowState = WindowState.Minimized;
                 this.Visibility = Visibility.Hidden;
-            };   
+            };
         }
 
         Process GetActiveProcess()
@@ -102,7 +97,7 @@ namespace WindowOnTop
             Process p = Process.GetProcessById((int)pid);
 
             return p;
-           
+
         }
 
         [DllImport("user32.dll")]
@@ -173,7 +168,7 @@ namespace WindowOnTop
             }
         }
 
-        private string GetWindowText(IntPtr hWnd)
+        private static string GetWindowText(IntPtr hWnd)
         {
             int textLength = GetWindowTextLength(hWnd);
             StringBuilder outText = new StringBuilder(textLength + 1);
@@ -181,14 +176,14 @@ namespace WindowOnTop
             return outText.ToString();
         }
 
-        private void WindowSetTopmost(IntPtr hWnd)
+        private static void WindowSetTopmost(IntPtr hWnd)
         {
             if (hWnd != IntPtr.Zero)
             {
                 SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
             }
         }
-        private void WindowUnsetTopmost(IntPtr hWnd)
+        private static void WindowUnsetTopmost(IntPtr hWnd)
         {
             if (hWnd != IntPtr.Zero)
             {
@@ -196,7 +191,7 @@ namespace WindowOnTop
             }
         }
 
-        private bool IsWindowTopmost(IntPtr hWnd)
+        private static bool IsWindowTopmost(IntPtr hWnd)
         {
             IntPtr dwExStyle = GetWindowLongPtr(hWnd, GWL.GWL_EXSTYLE);
             return (dwExStyle.ToInt64() & WS_EX_TOPMOST) != 0;
@@ -204,7 +199,7 @@ namespace WindowOnTop
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            // no modifierkey fired this event
+            // no modifier key fired this event
             if (e.Key != Key.System && e.Key != Key.LeftAlt && e.Key != Key.LeftCtrl && e.Key != Key.LeftShift && e.Key != Key.LWin
             && e.Key != Key.RightAlt && e.Key != Key.RightCtrl && e.Key != Key.RightShift && e.Key != Key.RWin)
             {
@@ -242,7 +237,7 @@ namespace WindowOnTop
 
                 MessageBox.Show(e.Message);
             }
-          
+
         }
         private void unregisterHotkey()
         {
@@ -267,13 +262,12 @@ namespace WindowOnTop
             try
             {
                 Stream testFileStream = File.Create(filename);
-                BinaryFormatter serializer = new BinaryFormatter();
+                var serializer = new BinaryFormatter();
                 serializer.Serialize(testFileStream, settings);
                 testFileStream.Close();
             }
             catch (Exception e)
             {
-
                 MessageBox.Show(e.Message);
             }
 
@@ -283,7 +277,7 @@ namespace WindowOnTop
             try
             {
                 Stream testFileStream = File.OpenRead(filename);
-                BinaryFormatter deserializer = new BinaryFormatter();
+                var deserializer = new BinaryFormatter();
                 settings = (StoredSettings)deserializer.Deserialize(testFileStream);
                 testFileStream.Close();
             }
@@ -292,8 +286,8 @@ namespace WindowOnTop
 
                 MessageBox.Show(e.Message);
             }
-     
-        }       
+
+        }
     }
-    
+
 }
