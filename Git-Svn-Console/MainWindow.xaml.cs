@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,9 +25,11 @@ namespace Git_Svn_Console
     /// </summary>
     public partial class MainWindow : Window
     {
+        //TODO
+        private const string WORKING_DIR = "D:/temp/svngit_test/SVN_TEST_REPO";
         private Process consoleProcess;
         private IntPtr hWndOriginalParent;
-        private IntPtr hWndDocked;
+        private IntPtr consoleHandle;
         private StreamWriter consoleInput = new StreamWriter(new MemoryStream());
         public MainWindow()
         {
@@ -105,7 +108,7 @@ namespace Git_Svn_Console
         {
             var windowHandle = new WindowInteropHelper(Application.Current.MainWindow).Handle;
 
-            if (hWndDocked != IntPtr.Zero) //don't do anything if there's already a window docked.
+            if (consoleHandle != IntPtr.Zero) //don't do anything if there's already a window docked.
                 return;
             var hWndParent = IntPtr.Zero;
             var fileName = @"C:\Program Files\Git\git-bash.exe";
@@ -113,10 +116,11 @@ namespace Git_Svn_Console
             info.RedirectStandardInput = true;
             info.UseShellExecute = false;
             info.CreateNoWindow = true;
+            
             consoleProcess = Process.Start(fileName);
             consoleProcess.WaitForInputIdle(1000);
 
-            while (hWndDocked == IntPtr.Zero)
+            while (consoleHandle == IntPtr.Zero)
             {
                 consoleProcess.WaitForInputIdle(1000); //wait for the window to be ready for input;
                 System.Threading.Thread.Sleep(100);
@@ -127,25 +131,29 @@ namespace Git_Svn_Console
                 }
                 //https://stackoverflow.com/questions/1277563/how-do-i-get-the-handle-of-a-console-applications-window
                 //TODO
-                hWndDocked = FindWindowByCaption(IntPtr.Zero, @"MINGW64:/d/GitPrivate/ProductivityTools/Git-Svn-Console/bin/Debug");
+                consoleHandle = FindWindowByCaption(IntPtr.Zero, @"MINGW64:/d/GitPrivate/ProductivityTools/Git-Svn-Console/bin/Debug");
             }
             const int GWL_STYLE = (-16);
             const int WS_VISIBLE = 0x10000000;
-            SetWindowLong(hWndDocked, GWL_STYLE, WS_VISIBLE);
+            SetWindowLong(consoleHandle, GWL_STYLE, WS_VISIBLE);
             //Windows API call to change the parent of the target window.
             //It returns the hWnd of the window's parent prior to this call.
-            hWndOriginalParent = SetParent(hWndDocked, windowHandle);
+            hWndOriginalParent = SetParent(consoleHandle, windowHandle);
 
             //Wire up the event to keep the window sized to match the control
             SizeChanged += WindowResize;
             //Perform an initial call to set the size.
             WindowResize(new object(), new EventArgs());
+
+            // TODO start param
+            SendString("cd " + WORKING_DIR + "\n", consoleHandle);
+            SendString("clear\n", consoleHandle);
         }
 
         private void undockIt()
         {
             //Restores the application to it's original parent.
-            SetParent(hWndDocked, hWndOriginalParent);
+            SetParent(consoleHandle, hWndOriginalParent);
         }
 
         private void WindowResize(object sender, EventArgs e)
@@ -153,12 +161,43 @@ namespace Git_Svn_Console
             var windowHandle = new WindowInteropHelper(Application.Current.MainWindow).Handle;
 
             //Change the docked windows size to match its parent's size. 
-            MoveWindow(hWndDocked, 0, 0, (int)(Width*0.8), (int)Height, true);
+            MoveWindow(consoleHandle, 0, 0, (int)(Width * 0.8), (int)Height, true);
         }
 
         private void btnCommit_Click(object sender, RoutedEventArgs e)
         {
-            SendString("svn info\n", hWndDocked);
+            SendString("git svn info --url\n", consoleHandle);
+            labelBranch.Content = GetCurrentSvnBranch(WORKING_DIR);
+        }
+
+        private static string GetCurrentSvnBranch(string directory)
+        {
+            var cmd = "/C git svn info --url";
+
+            var info = new ProcessStartInfo();
+            info.FileName = "cmd.exe";
+            info.Arguments = cmd;
+            info.WorkingDirectory = directory;
+            info.UseShellExecute = false;
+            info.CreateNoWindow = true;
+            info.RedirectStandardError = true;
+            info.RedirectStandardOutput = true;
+            Process proc = Process.Start(info);
+            string output = proc.StandardOutput.ReadToEnd();
+            if (output == "")
+            {
+                //TODO
+                output = proc.StandardError.ReadToEnd();
+            }
+            // split type and "branch"
+            // ^.*\/(?<category>.+?)\/(?<branch>.+?)$
+
+            // type/"branch"
+            // ^.*\/(?<branch>.+?\/.+?)$
+
+            Regex regex = new Regex(@"^.*\/(?<branch>.+?\/.+?)$", RegexOptions.Multiline);
+            string trunk = regex.Match(output.Replace("\n", "")).Groups["branch"].ToString();
+            return trunk;
         }
 
         public static void SendString(string inputStr, IntPtr hWnd)
