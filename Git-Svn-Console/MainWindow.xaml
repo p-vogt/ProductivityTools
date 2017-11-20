@@ -3,15 +3,21 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:WpfAppControl="clr-namespace:WpfAppControl"
         mc:Ignorable="d"
         Title="MainWindow" Height="500" Width="589" Loaded="Window_Loaded">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"/>
+            <RowDefinition x:Name="consoleRow" Height="*"/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="consoleColumn" Width="8*"/>
-            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition x:Name="consoleColumn" Width="*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="btnCommit" Content="dcommit" HorizontalAlignment="Left" Margin="31,50,0,0" VerticalAlignment="Top" Width="75" Click="btnCommit_Click" Grid.Column="1"/>
-        <Label x:Name="labelBranch" Content="" Grid.Column="1" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="96"/>
+        <Button x:Name="btnCommit" Content="SVN Commit" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top" Width="75" Click="btnCommit_Click" Height="20"/>
+        <TextBlock x:Name="labelBranch" TextWrapping="WrapWithOverflow"  Text="debug" Margin="10,10,10,0" VerticalAlignment="Top" Foreground="Red" FontSize="18" FontWeight="Bold"  Height="49"/>
+        <Rectangle Grid.Row="1" Stroke="Black" Fill="Black"/>
+        <Button x:Name="btnCheckoutMaster" Content="Master" HorizontalAlignment="Left" Margin="90,64,0,0" VerticalAlignment="Top" Width="75" Height="20" Click="btnCheckoutMaster_Click"/>
+        <Button x:Name="btnCheckoutBranch" Content="Branch" HorizontalAlignment="Left" Margin="170,64,0,0" VerticalAlignment="Top" Width="75" Height="20" Click="btnCheckoutBranch_Click"/>
+        <TextBox x:Name="tBoxCheckoutBranchName" HorizontalAlignment="Left" Height="23" Margin="250,64,0,0" TextWrapping="Wrap" Text="branch123" VerticalAlignment="Top" Width="149"/>
     </Grid>
 </Window>

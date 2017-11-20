@@ -2,21 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Git_Svn_Console
 {
@@ -26,7 +15,7 @@ namespace Git_Svn_Console
     public partial class MainWindow : Window
     {
         //TODO
-        private const string WORKING_DIR = "D:/temp/svngit_test/SVN_TEST_REPO";
+        private const string WORKING_DIR = "D:/temp/SvnGitTest2/SvnGit_V2";
         private Process consoleProcess;
         private IntPtr hWndOriginalParent;
         private IntPtr consoleHandle;
@@ -116,7 +105,7 @@ namespace Git_Svn_Console
             info.RedirectStandardInput = true;
             info.UseShellExecute = false;
             info.CreateNoWindow = true;
-            
+
             consoleProcess = Process.Start(fileName);
             consoleProcess.WaitForInputIdle(1000);
 
@@ -160,44 +149,73 @@ namespace Git_Svn_Console
         {
             var windowHandle = new WindowInteropHelper(Application.Current.MainWindow).Handle;
 
-            //Change the docked windows size to match its parent's size. 
-            MoveWindow(consoleHandle, 0, 0, (int)(Width * 0.8), (int)Height, true);
+            //Change the docked windows size
+            MoveWindow(consoleHandle, 0, (int)(consoleRow.Offset),
+                       (int)(consoleColumn.ActualWidth), (int)(consoleRow.ActualHeight - Margin.Bottom - 5), true);
         }
 
         private void btnCommit_Click(object sender, RoutedEventArgs e)
         {
-            SendString("git svn info --url\n", consoleHandle);
-            labelBranch.Content = GetCurrentSvnBranch(WORKING_DIR);
+            string branch = UpdateBranchLabel();
+            if (branch == "trunk")
+            {
+                var result = MessageBox.Show("ACHTUNG: Trunk-commit! Soll der Vorgang fortgesetzt werden?", "Achtung", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    SendString("git svn info --url\n", consoleHandle);
+                }
+            }
+        }
+
+        private string UpdateBranchLabel()
+        {
+            string branch = GetCurrentSvnBranch(WORKING_DIR);
+            labelBranch.Text = branch;
+            return branch;
         }
 
         private static string GetCurrentSvnBranch(string directory)
         {
             var cmd = "/C git svn info --url";
 
-            var info = new ProcessStartInfo();
-            info.FileName = "cmd.exe";
-            info.Arguments = cmd;
-            info.WorkingDirectory = directory;
-            info.UseShellExecute = false;
-            info.CreateNoWindow = true;
-            info.RedirectStandardError = true;
-            info.RedirectStandardOutput = true;
-            Process proc = Process.Start(info);
-            string output = proc.StandardOutput.ReadToEnd();
+            var info = new ProcessStartInfo("cmd.exe")
+            {
+                Arguments = cmd,
+                WorkingDirectory = directory,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+            var proc = Process.Start(info);
+            var output = proc.StandardOutput.ReadToEnd();
             if (output == "")
             {
                 //TODO
                 output = proc.StandardError.ReadToEnd();
             }
             // split type and "branch"
-            // ^.*\/(?<category>.+?)\/(?<branch>.+?)$
+            // ^.*\/(?<category>.+?)\/(?<branch>.+?)\n$
 
             // type/"branch"
-            // ^.*\/(?<branch>.+?\/.+?)$
+            // ^.*\/(?<branch>.+?\/.+?)\n$
+            var regex = new Regex(@"^.*\/(?<repo>.+?)\/(?<category>.+?)\/(?<branch>.+?)\n$", RegexOptions.Multiline | RegexOptions.Compiled);
+            if (regex.IsMatch(output))
+            {
+                var repo = regex.Match(output).Groups["repo"].ToString();
+                var category = regex.Match(output).Groups["category"].ToString();
+                var branch = regex.Match(output).Groups["branch"].ToString();
 
-            Regex regex = new Regex(@"^.*\/(?<branch>.+?\/.+?)$", RegexOptions.Multiline);
-            string trunk = regex.Match(output.Replace("\n", "")).Groups["branch"].ToString();
-            return trunk;
+                // trunk
+                if (repo == "svn")
+                {
+                    repo = category;
+                    category = "";
+                }
+                return category != "" ? $"{repo}\n{category}/{branch}" :
+                                        $"{repo}\n{branch}";
+            }
+            return "<ERROR>";
         }
 
         public static void SendString(string inputStr, IntPtr hWnd)
@@ -878,6 +896,36 @@ namespace Git_Svn_Console
             /// </summary>
             UP = 0x26,
 
+        }
+
+        private void btnCheckoutMaster_Click(object sender, RoutedEventArgs e)
+        {
+            //TODO lock buttons
+            Checkout("master");
+            UpdateBranchLabel();
+            //TODO unlock buttons
+        }
+
+        public void Checkout(string branchname)
+        {
+            SendString($"git checkout {branchname}\n", consoleHandle);
+        }
+
+        private void btnCheckoutBranch_Click(object sender, RoutedEventArgs e)
+        {
+            //TODO lock buttons
+            string branchname = tBoxCheckoutBranchName.Text;
+            if (branchname != "")
+            {
+                Checkout(branchname);
+                UpdateBranchLabel();
+
+            }
+            else
+            {
+                MessageBox.Show("Bitte einen Branch zum auschecken auswählen.", "Branchname leer", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            //TODO unlock buttons
         }
     }
 }
