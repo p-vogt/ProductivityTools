@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Git_Svn_Console" x:Class="Git_Svn_Console.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="500" Width="589" Loaded="Window_Loaded">
+        Title="GIT SVN Console" Height="500" Width="589" Loaded="Window_Loaded" Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="100"/>
@@ -15,10 +15,10 @@
             <ColumnDefinition x:Name="consoleColumn" Width="*"/>
         </Grid.ColumnDefinitions>
         <Button x:Name="btnCommit" Content="SVN Commit" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top" Width="75" Click="btnCommit_Click" Height="20"/>
-        <TextBlock x:Name="labelSvnBranch" TextWrapping="WrapWithOverflow" Margin="10,10,10,0" VerticalAlignment="Top" Foreground="Red" FontSize="18" FontWeight="Bold"  Height="49" Text="{Binding CurrentSvnBranch, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"><Run Text="Reponame"/><LineBreak/><Run Text="Category/"/><Run Text="B"/><Run Text="ranchname"/></TextBlock>
+        <TextBlock x:Name="labelSvnBranch" TextWrapping="WrapWithOverflow" Margin="10,10,292,0" VerticalAlignment="Top" Foreground="Red" FontSize="18" FontWeight="Bold"  Height="49" Text="{Binding CurrentSvnBranch, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"><Run Text="Reponame"/><LineBreak/><Run Text="Category/"/><Run Text="B"/><Run Text="ranchname"/></TextBlock>
         <Rectangle Grid.Row="1" Stroke="Black" Fill="Black"/>
         <Button x:Name="btnCheckoutMaster" Content="Master" HorizontalAlignment="Left" Margin="90,64,0,0" VerticalAlignment="Top" Width="75" Height="20" Click="btnCheckoutMaster_Click"/>
-        <Button x:Name="btnCheckoutBranch" Content="Branch" HorizontalAlignment="Left" Margin="170,64,0,0" VerticalAlignment="Top" Width="75" Height="20" Click="btnCheckoutBranch_Click"/>
-        <ComboBox x:Name="cBoxCheckoutBranchName" HorizontalAlignment="Left" Height="23" Margin="250,64,0,0" VerticalAlignment="Top" Width="149" IsEditable="True"  ItemsSource="{Binding LocalGitBranches, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" SelectedValue="{Binding TargetGitBranch, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
+        <ComboBox x:Name="cBoxCheckoutBranchName" Height="23" Margin="170,64,237,0" VerticalAlignment="Top" IsEditable="True"  ItemsSource="{Binding LocalGitBranches, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" SelectedValue="{Binding TargetGitBranch, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
+        <Button x:Name="btnKillTasks" Content="Kill BG Tasks" Margin="0,64,10,0" VerticalAlignment="Top" Click="btnKillTasks_Click" Height="20" HorizontalAlignment="Right" Width="75"/>
     </Grid>
 </Window>

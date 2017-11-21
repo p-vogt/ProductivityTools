@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,7 +12,7 @@ using System.Windows.Interop;
 namespace Git_Svn_Console
 {
     /// <summary>
-    /// Interaktionslogik für MainWindow.xaml
+    /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
@@ -54,6 +53,12 @@ namespace Git_Svn_Console
                 if (value != targetGitBranch)
                 {
                     targetGitBranch = value;
+                    if (targetGitBranch != "")
+                    {
+                        Checkout(targetGitBranch);
+                        UpdateUIAsync();
+                    }
+
                     NotifyPropertyChanged();
                 }
             }
@@ -86,32 +91,38 @@ namespace Git_Svn_Console
         {
             InitializeComponent();
         }
-        
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            DockIt();
-            UpdateUIAsync();
+            InitAsync();
         }
 
+        private async Task InitAsync()
+        {
+            DockIt();
+            // TODO             WinAPI.ClearConsole(consoleHandle); as start param
+            WinAPI.SendString("cd " + WORKING_DIR + "\n", consoleHandle);
+            WinAPI.ClearConsole(consoleHandle);
+            await UpdateUIAsync();
+            WinAPI.ClearConsole(consoleHandle);
+        }
         private void DockIt()
         {
             var windowHandle = new WindowInteropHelper(Application.Current.MainWindow).Handle;
-
-            if (consoleHandle != IntPtr.Zero) //don't do anything if there's already a window docked.
-                return;
             var hWndParent = IntPtr.Zero;
             var fileName = @"C:\Program Files\Git\git-bash.exe";
-            ProcessStartInfo info = new ProcessStartInfo(fileName);
-            info.RedirectStandardInput = true;
-            info.UseShellExecute = false;
-            info.CreateNoWindow = true;
-
+            var info = new ProcessStartInfo(fileName)
+            {
+                RedirectStandardInput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Minimized
+            };
             consoleProcess = Process.Start(fileName);
-            consoleProcess.WaitForInputIdle(1000);
-
+            consoleHandle = IntPtr.Zero;
             while (consoleHandle == IntPtr.Zero)
             {
-                consoleProcess.WaitForInputIdle(1000); //wait for the window to be ready for input;
+                consoleProcess.WaitForInputIdle(100); //wait for the window to be ready for input;
                 System.Threading.Thread.Sleep(100);
                 consoleProcess.Refresh();              //update process info
                 if (consoleProcess.HasExited)
@@ -133,10 +144,6 @@ namespace Git_Svn_Console
             SizeChanged += WindowResize;
             //Perform an initial call to set the size.
             WindowResize(new object(), new EventArgs());
-
-            // TODO start param
-            WinAPI.SendString("cd " + WORKING_DIR + "\n", consoleHandle);
-            WinAPI.SendString("clear\n", consoleHandle);
         }
 
         private void undockIt()
@@ -194,7 +201,7 @@ namespace Git_Svn_Console
             {
                 gitBranchList.Add(match.Groups["branchName"].ToString());
             }
-            string currentGitBranch = regexCurrentBranch.Match(output).Groups["branchName"].ToString();
+            var currentGitBranch = regexCurrentBranch.Match(output).Groups["branchName"].ToString();
             gitBranchList.Add(currentGitBranch);
 
             LocalGitBranches = gitBranchList;
@@ -229,8 +236,6 @@ namespace Git_Svn_Console
             return "<ERROR>";
         }
 
-        
-
         private void btnCheckoutMaster_Click(object sender, RoutedEventArgs e)
         {
             //TODO lock buttons
@@ -244,20 +249,52 @@ namespace Git_Svn_Console
             WinAPI.SendString($"git checkout {branchname}\n", consoleHandle);
         }
 
-        private void btnCheckoutBranch_Click(object sender, RoutedEventArgs e)
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
-            //TODO lock buttons
-            var branchname = cBoxCheckoutBranchName.Text;
-            if (branchname != "")
+            if (consoleProcess?.HasExited == false)
             {
-                Checkout(branchname);
-                UpdateUIAsync();
+                consoleProcess.Close();
             }
-            else
+            KillAllTasksDialog();
+        }
+
+        private static bool KillAllTasksDialog()
+        {
+            var result = MessageBox.Show("Do you want to terminate >ALL< bash, git-bash and perl processes?",
+                                "Kill Tasks", MessageBoxButton.YesNo,
+                                MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
             {
-                MessageBox.Show("Bitte einen Branch zum auschecken auswählen.", "Branchname leer", MessageBoxButton.OK, MessageBoxImage.Information);
+                KillBackgroundTasks();
             }
-            //TODO unlock buttons
+            return result == MessageBoxResult.Yes;
+        }
+
+        private void btnKillTasks_Click(object sender, RoutedEventArgs e)
+        {
+            if (KillAllTasksDialog())
+            {
+                DockIt();
+            }
+        }
+
+        private static void KillBackgroundTasks()
+        {
+            var allProcceses = Process.GetProcesses();
+
+            for (int i = 0; i < allProcceses.Length; i++)
+            {
+                var processName = allProcceses[i].ProcessName;
+                if (processName == "perl"
+                || processName == "bash"
+                || processName == "git-bash")
+                {
+                    if (!allProcceses[i].HasExited)
+                    {
+                        allProcceses[i].Kill();
+                    }
+                }
+            }
         }
     }
 }

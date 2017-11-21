@@ -84,6 +84,7 @@ namespace Git_Svn_Console
             };
             var proc = Process.Start(info);
             var output = proc.StandardOutput.ReadToEnd();
+            proc.Close();
             if (output == "")
             {
                 //TODO
@@ -164,6 +165,11 @@ namespace Git_Svn_Console
                 }
             }
             WinAPI.SendInput((uint)keyList.Count, keyList.ToArray(), Marshal.SizeOf(typeof(WinAPI.INPUT)));
+        }
+
+        internal static void ClearConsole(IntPtr consoleHandle)
+        {
+            WinAPI.SendString("clear\n", consoleHandle);
         }
 
         public enum WindowsVirtualKey : ushort
