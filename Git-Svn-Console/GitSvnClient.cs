@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Git_Svn_Console
 {
@@ -78,11 +77,13 @@ namespace Git_Svn_Console
         public string DetermineWorkingDirectory()
         {
             const string pwdFileName = "c:\\temp\\pwd.TMP";
+            Directory.CreateDirectory("c:\\temp");
+
             WinAPI.SendString($"pwd > \"{pwdFileName}\"\n", consoleHandle);
             Thread.Sleep(100);
-            if(File.Exists(pwdFileName))
+            if (File.Exists(pwdFileName))
             {
-                workingDirectory = File.ReadAllText(pwdFileName).Replace("\n","");
+                workingDirectory = File.ReadAllText(pwdFileName).Replace("\n", "");
                 File.Delete(pwdFileName);
                 return workingDirectory;
             }

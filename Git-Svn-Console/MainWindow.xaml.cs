@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media;
 
 namespace Git_Svn_Console
 {
@@ -22,6 +23,23 @@ namespace Git_Svn_Console
         private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        Brush svnBranchBrush;
+        public Brush SvnBranchBrush
+        {
+            get
+            {
+                return svnBranchBrush;
+            }
+            set
+            {
+                if (value != svnBranchBrush)
+                {
+                    svnBranchBrush = value;
+                    NotifyPropertyChanged();
+                }
+            }
         }
 
         List<string> localGitBranches;
@@ -198,12 +216,27 @@ namespace Git_Svn_Console
                 UpdateCurrentSvnBranch();
                 UpdateGitLocalBranches();
             });
-
         }
 
         private void UpdateCurrentSvnBranch()
         {
             CurrentSvnBranch = client.GetCurrentSvnBranch();
+            if (CurrentSvnBranch.EndsWith("trunk", StringComparison.CurrentCulture))
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                     SvnBranchBrush = (SolidColorBrush)labelSvnBranch.Resources["RED_BRUSH"];
+                }));
+               
+            }
+            else
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    SvnBranchBrush = (SolidColorBrush)labelSvnBranch.Resources["BLACK_BRUSH"];
+                }));
+            }
+            
         }
 
         private void UpdateGitLocalBranches()
