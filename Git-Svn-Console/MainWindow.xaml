@@ -17,8 +17,7 @@
         <Button x:Name="btnCommit" Content="SVN Commit" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top" Width="75" Click="btnCommit_Click" Height="20"/>
         <TextBlock x:Name="labelSvnBranch" TextWrapping="WrapWithOverflow" Margin="10,10,292,0" VerticalAlignment="Top" Foreground="Red" FontSize="18" FontWeight="Bold"  Height="49" Text="{Binding CurrentSvnBranch, Mode=TwoWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"><Run Text="Reponame"/><LineBreak/><Run Text="Category/"/><Run Text="B"/><Run Text="ranchname"/></TextBlock>
         <Rectangle Grid.Row="1" Stroke="Black" Fill="Black"/>
-        <Button x:Name="btnCheckoutMaster" Content="Master" HorizontalAlignment="Left" Margin="90,64,0,0" VerticalAlignment="Top" Width="75" Height="20" Click="btnCheckoutMaster_Click"/>
-        <ComboBox x:Name="cBoxCheckoutBranchName" Height="23" Margin="170,64,237,0" VerticalAlignment="Top" IsEditable="True"  ItemsSource="{Binding LocalGitBranches, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" SelectedValue="{Binding TargetGitBranch, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
+        <ComboBox x:Name="cBoxCheckoutBranchName" Height="23" Margin="115,61,292,0" VerticalAlignment="Top" IsEditable="True"  ItemsSource="{Binding LocalGitBranches, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" SelectedValue="{Binding TargetGitBranch, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
         <Button x:Name="btnKillTasks" Content="Kill BG Tasks" Margin="0,64,10,0" VerticalAlignment="Top" Click="btnKillTasks_Click" Height="20" HorizontalAlignment="Right" Width="75"/>
     </Grid>
 </Window>

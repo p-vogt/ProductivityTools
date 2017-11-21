@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -55,7 +54,7 @@ namespace Git_Svn_Console
                     targetGitBranch = value;
                     if (targetGitBranch != "")
                     {
-                        Checkout(targetGitBranch);
+                        client.Checkout(targetGitBranch);
                         UpdateUIAsync();
                     }
 
@@ -84,7 +83,7 @@ namespace Git_Svn_Console
         private Process consoleProcess;
         private IntPtr hWndOriginalParent;
         private IntPtr consoleHandle;
-        private StreamWriter consoleInput = new StreamWriter(new MemoryStream());
+        GitSvnClient client;
 
 
         public MainWindow()
@@ -99,21 +98,21 @@ namespace Git_Svn_Console
 
         private async Task InitAsync()
         {
-            DockIt();
+            IncludeGitBashInGUI();
             // TODO             WinAPI.ClearConsole(consoleHandle); as start param
             WinAPI.SendString("cd " + WORKING_DIR + "\n", consoleHandle);
             WinAPI.ClearConsole(consoleHandle);
             await UpdateUIAsync();
             WinAPI.ClearConsole(consoleHandle);
         }
-        private void DockIt()
+
+        private void IncludeGitBashInGUI()
         {
             var windowHandle = new WindowInteropHelper(Application.Current.MainWindow).Handle;
             var hWndParent = IntPtr.Zero;
             var fileName = @"C:\Program Files\Git\git-bash.exe";
             var info = new ProcessStartInfo(fileName)
             {
-                RedirectStandardInput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Minimized
@@ -131,8 +130,9 @@ namespace Git_Svn_Console
                 }
                 //https://stackoverflow.com/questions/1277563/how-do-i-get-the-handle-of-a-console-applications-window
                 //TODO
-                consoleHandle = WinAPI.FindWindowByCaption(IntPtr.Zero, @"MINGW64:/d/GitPrivate/ProductivityTools/Git-Svn-Console/bin/Debug");
+                consoleHandle = GetGitBashWindowName();
             }
+            client = new GitSvnClient(WORKING_DIR, consoleHandle);
             const int GWL_STYLE = (-16);
             const int WS_VISIBLE = 0x10000000;
             WinAPI.SetWindowLong(consoleHandle, GWL_STYLE, WS_VISIBLE);
@@ -146,10 +146,28 @@ namespace Git_Svn_Console
             WindowResize(new object(), new EventArgs());
         }
 
-        private void undockIt()
+        private IntPtr GetGitBashWindowName()
         {
-            //Restores the application to it's original parent.
-            WinAPI.SetParent(consoleHandle, hWndOriginalParent);
+
+            Process[] processlist = Process.GetProcesses();
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory.ToUpper();
+            baseDir = baseDir.Replace(":", "");
+            baseDir = baseDir.Replace("\\", "/");
+            for (int i = 0; i < processlist.Length; ++i)
+            {
+                if (String.IsNullOrWhiteSpace(processlist[i].MainWindowTitle))
+                {
+                    continue;
+                }
+
+                string title = processlist[i].MainWindowTitle.ToUpper() + "/";
+ 
+                if (title == "MINGW64:/" + baseDir)
+                {
+                    return WinAPI.FindWindowByCaption(IntPtr.Zero, processlist[i].MainWindowTitle);
+                }
+            }
+            return IntPtr.Zero;
         }
 
         private void WindowResize(object sender, EventArgs e)
@@ -163,6 +181,14 @@ namespace Git_Svn_Console
 
         private void btnCommit_Click(object sender, RoutedEventArgs e)
         {
+            if (CurrentSvnBranch == "trunk")
+            {
+                var result = MessageBox.Show("Warning: trunk-commit! Continue?", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    client.Commit();
+                }
+            }
         }
 
         private async Task UpdateUIAsync()
@@ -177,76 +203,20 @@ namespace Git_Svn_Console
 
         private void UpdateCurrentSvnBranch()
         {
-            var svnBranch = GetCurrentSvnBranch(WORKING_DIR);
-            CurrentSvnBranch = svnBranch;
-
-            if (svnBranch == "trunk")
-            {
-                var result = MessageBox.Show("ACHTUNG: Trunk-commit! Soll der Vorgang fortgesetzt werden?", "Achtung", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                if (result == MessageBoxResult.Yes)
-                {
-                    WinAPI.SendString("git svn info --url\n", consoleHandle);
-                }
-            }
+            CurrentSvnBranch = client.GetCurrentSvnBranch();
         }
 
         private void UpdateGitLocalBranches()
         {
             var regexBranches = new Regex(@"^\s*(?<branchName>\S+?)\n?$", RegexOptions.Multiline);
             var regexCurrentBranch = new Regex(@"^\s*\*\s*(?<branchName>\S+?)\n?$", RegexOptions.Multiline);
-            var output = WinAPI.PerformShellCommand(WORKING_DIR, "/C git branch --list");
-
-            var gitBranchList = new List<string>();
-            foreach (Match match in regexBranches.Matches(output))
-            {
-                gitBranchList.Add(match.Groups["branchName"].ToString());
-            }
-            var currentGitBranch = regexCurrentBranch.Match(output).Groups["branchName"].ToString();
+            List<string> gitBranchList;
+            string currentGitBranch;
+            client.GetGitBranches(regexBranches, regexCurrentBranch, out gitBranchList, out currentGitBranch);
             gitBranchList.Add(currentGitBranch);
 
             LocalGitBranches = gitBranchList;
             TargetGitBranch = currentGitBranch;
-        }
-
-        private static string GetCurrentSvnBranch(string directory)
-        {
-            var cmd = "/C git svn info --url";
-            string output = WinAPI.PerformShellCommand(directory, cmd);
-            // split type and "branch"
-            // ^.*\/(?<category>.+?)\/(?<branch>.+?)\n$
-
-            // type/"branch"
-            // ^.*\/(?<branch>.+?\/.+?)\n$
-            var regex = new Regex(@"^.*\/(?<repo>.+?)\/(?<category>.+?)\/(?<branch>.+?)\n$", RegexOptions.Multiline | RegexOptions.Compiled);
-            if (regex.IsMatch(output))
-            {
-                var repo = regex.Match(output).Groups["repo"].ToString();
-                var category = regex.Match(output).Groups["category"].ToString();
-                var branch = regex.Match(output).Groups["branch"].ToString();
-
-                // trunk
-                if (repo == "svn")
-                {
-                    repo = category;
-                    category = "";
-                }
-                return category != "" ? $"{repo}\n{category}/{branch}" :
-                                        $"{repo}\n{branch}";
-            }
-            return "<ERROR>";
-        }
-
-        private void btnCheckoutMaster_Click(object sender, RoutedEventArgs e)
-        {
-            //TODO lock buttons
-            Checkout("master");
-            UpdateUIAsync();
-            //TODO unlock buttons
-        }
-
-        public void Checkout(string branchname)
-        {
-            WinAPI.SendString($"git checkout {branchname}\n", consoleHandle);
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
@@ -274,7 +244,7 @@ namespace Git_Svn_Console
         {
             if (KillAllTasksDialog())
             {
-                DockIt();
+                IncludeGitBashInGUI();
             }
         }
 
