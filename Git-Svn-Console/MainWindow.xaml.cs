@@ -78,8 +78,8 @@ namespace Git_Svn_Console
                 }
             }
         }
-        //TODO
-        private const string WORKING_DIR = "D:/temp/SvnGitTest2/SvnGit_V2";
+        //TODO startup path
+        private string workingDir = "D:/temp/SvnGitTest2/SvnGit_V2";
         private Process consoleProcess;
         private IntPtr hWndOriginalParent;
         private IntPtr consoleHandle;
@@ -100,7 +100,7 @@ namespace Git_Svn_Console
         {
             IncludeGitBashInGUI();
             // TODO             WinAPI.ClearConsole(consoleHandle); as start param
-            WinAPI.SendString("cd " + WORKING_DIR + "\n", consoleHandle);
+            WinAPI.SendString("cd " + workingDir + "\n", consoleHandle);
             WinAPI.ClearConsole(consoleHandle);
             await UpdateUIAsync();
             WinAPI.ClearConsole(consoleHandle);
@@ -132,8 +132,8 @@ namespace Git_Svn_Console
                 //TODO
                 consoleHandle = GetGitBashWindowName();
             }
-            client = new GitSvnClient(WORKING_DIR, consoleHandle);
-            const int GWL_STYLE = (-16);
+            client = new GitSvnClient(workingDir, consoleHandle);
+            const int GWL_STYLE = -16;
             const int WS_VISIBLE = 0x10000000;
             WinAPI.SetWindowLong(consoleHandle, GWL_STYLE, WS_VISIBLE);
             //Windows API call to change the parent of the target window.
@@ -265,6 +265,11 @@ namespace Git_Svn_Console
                     }
                 }
             }
+        }
+
+        private void btnUpdateWorkingDir_Click(object sender, RoutedEventArgs e)
+        {
+            workingDir = client.DetermineWorkingDirectory();
         }
     }
 }
