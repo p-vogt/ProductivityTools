@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 
@@ -12,14 +15,73 @@ namespace Git_Svn_Console
     /// <summary>
     /// Interaktionslogik für MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+        // This method is called by the Set accessor of each property.
+        // The CallerMemberName attribute that is applied to the optional propertyName
+        // parameter causes the property name of the caller to be substituted as an argument.
+        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        List<string> localGitBranches;
+        public List<string> LocalGitBranches
+        {
+            get
+            {
+                return localGitBranches;
+            }
+            set
+            {
+                if (value != localGitBranches)
+                {
+                    localGitBranches = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        string targetGitBranch;
+        public string TargetGitBranch
+        {
+            get
+            {
+                return targetGitBranch;
+            }
+            set
+            {
+                if (value != targetGitBranch)
+                {
+                    targetGitBranch = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        string currentSvnBranch;
+        public string CurrentSvnBranch
+        {
+            get
+            {
+                return currentSvnBranch;
+            }
+            set
+            {
+                if (value != currentSvnBranch)
+                {
+                    currentSvnBranch = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
         //TODO
         private const string WORKING_DIR = "D:/temp/SvnGitTest2/SvnGit_V2";
         private Process consoleProcess;
         private IntPtr hWndOriginalParent;
         private IntPtr consoleHandle;
         private StreamWriter consoleInput = new StreamWriter(new MemoryStream());
+
+
         public MainWindow()
         {
             InitializeComponent();
@@ -90,10 +152,11 @@ namespace Git_Svn_Console
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            dockIt();
+            DockIt();
+            UpdateUIAsync();
         }
 
-        private void dockIt()
+        private void DockIt()
         {
             var windowHandle = new WindowInteropHelper(Application.Current.MainWindow).Handle;
 
@@ -156,8 +219,24 @@ namespace Git_Svn_Console
 
         private void btnCommit_Click(object sender, RoutedEventArgs e)
         {
-            string branch = UpdateBranchLabel();
-            if (branch == "trunk")
+        }
+
+        private async Task UpdateUIAsync()
+        {
+            await Task.Factory.StartNew(() =>
+            {
+                UpdateCurrentSvnBranch();
+                UpdateGitLocalBranches();
+            });
+
+        }
+
+        private void UpdateCurrentSvnBranch()
+        {
+            var svnBranch = GetCurrentSvnBranch(WORKING_DIR);
+            CurrentSvnBranch = svnBranch;
+
+            if (svnBranch == "trunk")
             {
                 var result = MessageBox.Show("ACHTUNG: Trunk-commit! Soll der Vorgang fortgesetzt werden?", "Achtung", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (result == MessageBoxResult.Yes)
@@ -167,33 +246,28 @@ namespace Git_Svn_Console
             }
         }
 
-        private string UpdateBranchLabel()
+        private void UpdateGitLocalBranches()
         {
-            string branch = GetCurrentSvnBranch(WORKING_DIR);
-            labelBranch.Text = branch;
-            return branch;
+            var regexBranches = new Regex(@"^\s*(?<branchName>\S+?)\n?$", RegexOptions.Multiline);
+            var regexCurrentBranch = new Regex(@"^\s*\*\s*(?<branchName>\S+?)\n?$", RegexOptions.Multiline);
+            var output = SendCommand(WORKING_DIR, "/C git branch --list");
+
+            var gitBranchList = new List<string>();
+            foreach (Match match in regexBranches.Matches(output))
+            {
+                gitBranchList.Add(match.Groups["branchName"].ToString());
+            }
+            string currentGitBranch = regexCurrentBranch.Match(output).Groups["branchName"].ToString();
+            gitBranchList.Add(currentGitBranch);
+
+            LocalGitBranches = gitBranchList;
+            TargetGitBranch = currentGitBranch;
         }
 
         private static string GetCurrentSvnBranch(string directory)
         {
             var cmd = "/C git svn info --url";
-
-            var info = new ProcessStartInfo("cmd.exe")
-            {
-                Arguments = cmd,
-                WorkingDirectory = directory,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true
-            };
-            var proc = Process.Start(info);
-            var output = proc.StandardOutput.ReadToEnd();
-            if (output == "")
-            {
-                //TODO
-                output = proc.StandardError.ReadToEnd();
-            }
+            string output = SendCommand(directory, cmd);
             // split type and "branch"
             // ^.*\/(?<category>.+?)\/(?<branch>.+?)\n$
 
@@ -216,6 +290,28 @@ namespace Git_Svn_Console
                                         $"{repo}\n{branch}";
             }
             return "<ERROR>";
+        }
+
+        private static string SendCommand(string directory, string cmd)
+        {
+            var info = new ProcessStartInfo("cmd.exe")
+            {
+                Arguments = cmd,
+                WorkingDirectory = directory,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+            var proc = Process.Start(info);
+            var output = proc.StandardOutput.ReadToEnd();
+            if (output == "")
+            {
+                //TODO
+                output = proc.StandardError.ReadToEnd();
+            }
+
+            return output;
         }
 
         public static void SendString(string inputStr, IntPtr hWnd)
@@ -902,7 +998,7 @@ namespace Git_Svn_Console
         {
             //TODO lock buttons
             Checkout("master");
-            UpdateBranchLabel();
+            UpdateUIAsync();
             //TODO unlock buttons
         }
 
@@ -914,11 +1010,11 @@ namespace Git_Svn_Console
         private void btnCheckoutBranch_Click(object sender, RoutedEventArgs e)
         {
             //TODO lock buttons
-            string branchname = tBoxCheckoutBranchName.Text;
+            string branchname = cBoxCheckoutBranchName.Text;
             if (branchname != "")
             {
                 Checkout(branchname);
-                UpdateBranchLabel();
+                UpdateUIAsync();
 
             }
             else
