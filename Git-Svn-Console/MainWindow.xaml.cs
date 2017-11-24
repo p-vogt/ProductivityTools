@@ -25,7 +25,7 @@ namespace Git_Svn_Console
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        Brush svnBranchBrush;
+        Brush svnBranchBrush = new SolidColorBrush(Color.FromRgb(0, 120, 0));
         public Brush SvnBranchBrush
         {
             get
@@ -73,14 +73,14 @@ namespace Git_Svn_Console
                     if (targetGitBranch != "")
                     {
                         client.Checkout(targetGitBranch);
-                        UpdateUIAsync();
+                        UpdateSVNAsync();
                     }
 
                     NotifyPropertyChanged();
                 }
             }
         }
-        string currentSvnBranch;
+        string currentSvnBranch = "Determining active SVN Branch...";
         public string CurrentSvnBranch
         {
             get
@@ -120,9 +120,9 @@ namespace Git_Svn_Console
             // TODO             WinAPI.ClearConsole(consoleHandle); as start param
             WinAPI.SendString("cd " + workingDir + "\n", consoleHandle);
             WinAPI.ClearConsole(consoleHandle);
-            Task.Delay(1000).Wait();
-            await UpdateUIAsync();
-            Task.Delay(1000).Wait();
+            Task.Delay(100).Wait();
+            UpdateGitLocalBranches();
+            Task.Delay(100).Wait();
             WinAPI.ClearConsole(consoleHandle);
         }
 
@@ -181,7 +181,7 @@ namespace Git_Svn_Console
                 }
 
                 string title = processlist[i].MainWindowTitle.ToUpper() + "/";
- 
+
                 if (title == "MINGW64:/" + baseDir)
                 {
                     return WinAPI.FindWindowByCaption(IntPtr.Zero, processlist[i].MainWindowTitle);
@@ -211,46 +211,41 @@ namespace Git_Svn_Console
             }
         }
 
-        private async Task UpdateUIAsync()
+        private async Task UpdateSVNAsync()
         {
             await Task.Factory.StartNew(() =>
             {
                 UpdateCurrentSvnBranch();
-                UpdateGitLocalBranches();
             });
         }
 
         private void UpdateCurrentSvnBranch()
         {
             CurrentSvnBranch = client.GetCurrentSvnBranch();
-            if (CurrentSvnBranch == "<ERROR>"
+            if (CurrentSvnBranch == GitSvnClient.ERROR_INDICATOR
              || CurrentSvnBranch.EndsWith("trunk", StringComparison.CurrentCulture))
             {
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
                     SvnBranchBrush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
                 }));
-               
+
             }
             else
             {
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    SvnBranchBrush = new SolidColorBrush(Color.FromRgb(0,0,0));
+                    SvnBranchBrush = new SolidColorBrush(Color.FromRgb(0, 0, 0));
                 }));
             }
-            
+
         }
 
         private void UpdateGitLocalBranches()
         {
-            var regexBranches = new Regex(@"^\s*(?<branchName>\S+?)\n?$", RegexOptions.Multiline);
-            var regexCurrentBranch = new Regex(@"^\s*\*\s*(?<branchName>\S+?)\n?$", RegexOptions.Multiline);
             List<string> gitBranchList;
             string currentGitBranch;
-            client.GetGitBranches(regexBranches, regexCurrentBranch, out gitBranchList, out currentGitBranch);
-            gitBranchList.Add(currentGitBranch);
-
+            client.GetGitBranches(out gitBranchList, out currentGitBranch);
             LocalGitBranches = gitBranchList;
             TargetGitBranch = currentGitBranch;
         }
