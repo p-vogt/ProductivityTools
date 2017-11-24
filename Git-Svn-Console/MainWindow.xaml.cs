@@ -25,7 +25,7 @@ namespace Git_Svn_Console
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        Brush svnBranchBrush = new SolidColorBrush(Color.FromRgb(0, 120, 0));
+        Brush svnBranchBrush;
         public Brush SvnBranchBrush
         {
             get
@@ -80,7 +80,7 @@ namespace Git_Svn_Console
                 }
             }
         }
-        string currentSvnBranch = "Determining active SVN Branch...";
+        string currentSvnBranch;
         public string CurrentSvnBranch
         {
             get
@@ -109,6 +109,14 @@ namespace Git_Svn_Console
             InitializeComponent();
         }
 
+        public void ExcludeGitBashFromGUI()
+        {
+            WinAPI.SetParent(consoleHandle, hWndOriginalParent);
+            consoleProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+            uint processId;
+            WinAPI.GetWindowThreadProcessId(consoleHandle, out processId);
+            WinAPI.KillProcessAndChildren((int)processId);
+        }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             InitAsync();
@@ -221,6 +229,12 @@ namespace Git_Svn_Console
 
         private void UpdateCurrentSvnBranch()
         {
+            CurrentSvnBranch = "Determining active SVN Branch...";
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                SvnBranchBrush = new SolidColorBrush(Color.FromRgb(0, 120, 0));
+            }));
+
             CurrentSvnBranch = client.GetCurrentSvnBranch();
             if (CurrentSvnBranch == GitSvnClient.ERROR_INDICATOR
              || CurrentSvnBranch.EndsWith("trunk", StringComparison.CurrentCulture))
@@ -254,6 +268,7 @@ namespace Git_Svn_Console
         {
             if (consoleProcess?.HasExited == false)
             {
+                ExcludeGitBashFromGUI();
                 consoleProcess.Close();
             }
             KillAllTasksDialog();
@@ -261,7 +276,7 @@ namespace Git_Svn_Console
 
         private static bool KillAllTasksDialog()
         {
-            var result = MessageBox.Show("Do you want to terminate >ALL< bash, git-bash and perl processes?",
+            var result = MessageBox.Show("Do you want to terminate >ALL< bash, git-bash, conhost and perl processes?",
                                 "Kill Tasks", MessageBoxButton.YesNo,
                                 MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
@@ -288,7 +303,8 @@ namespace Git_Svn_Console
                 var processName = allProcceses[i].ProcessName;
                 if (processName == "perl"
                 || processName == "bash"
-                || processName == "git-bash")
+                || processName == "git-bash"
+                || processName == "conhost")
                 {
                     if (!allProcceses[i].HasExited)
                     {
@@ -301,6 +317,11 @@ namespace Git_Svn_Console
         private void btnUpdateWorkingDir_Click(object sender, RoutedEventArgs e)
         {
             workingDir = client.DetermineWorkingDirectory();
+        }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            ExcludeGitBashFromGUI();
         }
     }
 }

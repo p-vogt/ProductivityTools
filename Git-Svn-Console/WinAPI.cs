@@ -1,12 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Management;
 using System.Runtime.InteropServices;
 
 namespace Git_Svn_Console
 {
     static class WinAPI
     {
+        /// <summary>
+        /// Kill a process, and all of its children, grandchildren, etc.
+        /// </summary>
+        /// <param name="pid">Process ID.</param>
+        public static void KillProcessAndChildren(int pid)
+        {
+            // Cannot close 'system idle process'.
+            if (pid == 0)
+            {
+                return;
+            }
+            using (var searcher = new ManagementObjectSearcher
+                                ("Select * From Win32_Process Where ParentProcessID=" + pid))
+            {
+                ManagementObjectCollection moc = searcher.Get();
+                foreach (ManagementObject mo in moc)
+                {
+                    KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
+                }
+                try
+                {
+                    Process proc = Process.GetProcessById(pid);
+                    proc.Kill();
+                }
+                catch (ArgumentException)
+                {
+                    // Process already exited.
+                }
+            
+            }
+               
+        }
+
         [StructLayout(LayoutKind.Sequential)]
         public struct MOUSEINPUT
         {
@@ -47,6 +81,11 @@ namespace Git_Svn_Console
             [FieldOffset(4)] //*
             public HARDWAREINPUT hi;
         }
+
+        [DllImport("user32.dll", SetLastError = true)]
+       public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+
         /// <summary>
         /// Synthesizes keystrokes, mouse motions, and button clicks.
         /// </summary>
@@ -71,33 +110,10 @@ namespace Git_Svn_Console
         [DllImport("user32.dll", EntryPoint = "FindWindow", SetLastError = true)]
         public static extern IntPtr FindWindowByCaption(IntPtr zeroOnly, string lpWindowName);
 
-        public static string PerformShellCommand(string directory, string cmd)
-        {
-            var info = new ProcessStartInfo("cmd.exe")
-            {
-                Arguments = cmd,
-                WorkingDirectory = directory,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true
-            };
-            var proc = Process.Start(info);
-            var output = proc.StandardOutput.ReadToEnd();
-            proc.Close();
-            if (output == "")
-            {
-                //TODO
-                output = proc.StandardError.ReadToEnd();
-            }
-
-            return output;
-        }
-
         public static void SendString(string inputStr, IntPtr hWnd)
         {
             WinAPI.SetForegroundWindow(hWnd);
-            List<WinAPI.INPUT> keyList = new List<WinAPI.INPUT>();
+            var keyList = new List<WinAPI.INPUT>();
             foreach (short c in inputStr)
             {
                 switch (c)
@@ -169,7 +185,7 @@ namespace Git_Svn_Console
 
         internal static void ClearConsole(IntPtr consoleHandle)
         {
-            WinAPI.SendString("clear\n", consoleHandle);
+            WinAPI.SendString("reset\n", consoleHandle);
         }
 
         public enum WindowsVirtualKey : ushort

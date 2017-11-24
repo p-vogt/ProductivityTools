@@ -20,5 +20,6 @@
         <ComboBox x:Name="cBoxCheckoutBranchName" Height="23" Margin="115,61,292,0" VerticalAlignment="Top" IsEditable="True"  ItemsSource="{Binding LocalGitBranches, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" SelectedValue="{Binding TargetGitBranch, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
         <Button x:Name="btnKillTasks" Content="Kill BG Tasks" Margin="0,64,10,0" VerticalAlignment="Top" Click="btnKillTasks_Click" Height="20" HorizontalAlignment="Right" Width="75"/>
         <Button x:Name="btnUpdateWorkingDir" Content="Update WD" Margin="0,39,10,0" VerticalAlignment="Top" Click="btnUpdateWorkingDir_Click" HorizontalAlignment="Right" Width="75"/>
+        <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Margin="364,39,0,0" VerticalAlignment="Top" Width="75" Click="button_Click"/>
     </Grid>
 </Window>
