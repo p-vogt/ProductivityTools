@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Git_Svn_Console
 {
@@ -21,19 +20,21 @@ namespace Git_Svn_Console
 
         public void Commit()
         {
+            ClearCurrentInput();
             WinAPI.SendString("git svn dcommit\n", consoleHandle);
         }
 
         public void GetGitBranches(out List<string> gitBranchList, out string currentGitBranch)
         {
+            ClearCurrentInput();
             var regexBranches = new Regex(@"^\s*(?<branchName>\S+?)?$", RegexOptions.Multiline);
             var regexCurrentBranch = new Regex(@"\*\s(?<branchName>\S+)?", RegexOptions.Multiline);
 
-            var response = GetCommandResponse("git branch --list",5000).Trim();
+            var response = GetCommandResponse("git branch --list", 5000).Trim();
 
             gitBranchList = new List<string>();
 
-            gitBranchList = new List<string>(response.Replace("*","").Split(' '));
+            gitBranchList = new List<string>(response.Replace("*", "").Split(' '));
 
             // remove empty entries
             gitBranchList.RemoveAll(str => string.IsNullOrWhiteSpace(str));
@@ -51,7 +52,8 @@ namespace Git_Svn_Console
 
         public string GetCurrentSvnBranch()
         {
-            string output = GetCommandResponse("git svn info --url",10000);
+            ClearCurrentInput();
+            string output = GetCommandResponse("git svn info --url", 10000);
 
             // split type and "branch"
             // ^.*\/(?<category>.+?)\/(?<branch>.+?)\n$
@@ -79,7 +81,7 @@ namespace Git_Svn_Console
 
         // to prevent simultaneous readings at one file
         static int commandResponseCounter = 0;
-        private Object commandLockObject = new Object();
+        private object commandLockObject = new Object();
 
         private int CommandResponseCounter
         {
@@ -95,6 +97,7 @@ namespace Git_Svn_Console
 
         private string GetCommandResponse(string command, long timeoutMs)
         {
+            ClearCurrentInput();
             var tempFileName = $"c:\\temp\\cmd_{CommandResponseCounter}.TMP";
             Directory.CreateDirectory("c:\\temp");
             WinAPI.SendString($"{command} > \"{tempFileName}\"\n", consoleHandle);
@@ -119,7 +122,7 @@ namespace Git_Svn_Console
                 }
             }
 
-            if(File.Exists(tempFileName))
+            if (File.Exists(tempFileName))
             {
                 File.Delete(tempFileName);
             }
@@ -128,13 +131,25 @@ namespace Git_Svn_Console
 
         public void Checkout(string branchname)
         {
+            ClearCurrentInput();
             WinAPI.SendString($"git checkout {branchname}\n", consoleHandle);
         }
 
 
         public string DetermineWorkingDirectory()
         {
-            return GetCommandResponse("pwd",5000);
+            return GetCommandResponse("pwd", 5000);
+        }
+
+        internal void Fetch()
+        {
+            ClearCurrentInput();
+            WinAPI.SendString($"git svn rebase\n", consoleHandle);
+        }
+
+        internal void ClearCurrentInput()
+        {
+            WinAPI.SendCtrlChar('U', consoleHandle);
         }
     }
 }

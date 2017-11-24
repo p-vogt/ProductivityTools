@@ -36,9 +36,9 @@ namespace Git_Svn_Console
                 {
                     // Process already exited.
                 }
-            
+
             }
-               
+
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -83,7 +83,7 @@ namespace Git_Svn_Console
         }
 
         [DllImport("user32.dll", SetLastError = true)]
-       public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
 
         /// <summary>
@@ -180,12 +180,53 @@ namespace Git_Svn_Console
                         break;
                 }
             }
-            WinAPI.SendInput((uint)keyList.Count, keyList.ToArray(), Marshal.SizeOf(typeof(WinAPI.INPUT)));
+            WinAPI.SendInput((uint)keyList.Count, keyList.ToArray(), Marshal.SizeOf(typeof(INPUT)));
         }
 
+        public static void SendCtrlChar(char c, IntPtr hWnd)
+        {
+            WinAPI.SetForegroundWindow(hWnd);
+
+            var keyList = new List<INPUT>();
+            var keyDownCtrl = new INPUT
+            {
+                type = 1 //Keyboard
+            };
+            keyDownCtrl.ki.wVk = (ushort)WindowsVirtualKey.CONTROL;
+            keyDownCtrl.ki.dwFlags = 0; //Unicode Key Down;
+            keyList.Add(keyDownCtrl);
+
+
+            var keyDown = new INPUT
+            {
+                type = 1 //Keyboard
+            };
+            keyDown.ki.wVk = (ushort)c; //Use unicode
+            keyDown.ki.dwFlags = 0;
+            keyList.Add(keyDown);
+
+            var keyUp = new INPUT
+            {
+                type = 1 //Keyboard
+            };
+            keyUp.ki.wVk = 0; //Use unicode
+            keyUp.ki.dwFlags = 0x0004 | 0x0002; //Unicode Key Up
+            keyUp.ki.wScan = (ushort)c;
+            keyList.Add(keyUp);
+
+            var keyUpCtrl = new INPUT
+            {
+                type = 1 //Keyboard
+            };
+            keyUpCtrl.ki.wVk = (ushort)WindowsVirtualKey.CONTROL; //Use unicode
+            keyUpCtrl.ki.dwFlags = 0x0002; //Unicode Key Up
+            keyList.Add(keyUpCtrl);
+
+            WinAPI.SendInput((uint)keyList.Count, keyList.ToArray(), Marshal.SizeOf(typeof(WinAPI.INPUT)));
+        }
         internal static void ClearConsole(IntPtr consoleHandle)
         {
-            WinAPI.SendString("reset\n", consoleHandle);
+            //WinAPI.SendString("reset\n", consoleHandle);
         }
 
         public enum WindowsVirtualKey : ushort

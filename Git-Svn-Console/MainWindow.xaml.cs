@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
@@ -73,7 +74,9 @@ namespace Git_Svn_Console
                     if (targetGitBranch != "")
                     {
                         client.Checkout(targetGitBranch);
+                         Thread.Sleep(500);
                         UpdateSVNAsync();
+                      
                     }
 
                     NotifyPropertyChanged();
@@ -122,13 +125,13 @@ namespace Git_Svn_Console
             InitAsync();
         }
 
-        private async Task InitAsync()
+        private void InitAsync()
         {
             IncludeGitBashInGUI();
-            // TODO             WinAPI.ClearConsole(consoleHandle); as start param
+            // TODO workingDir as start param
             WinAPI.SendString("cd " + workingDir + "\n", consoleHandle);
             WinAPI.ClearConsole(consoleHandle);
-            Task.Delay(100).Wait();
+            Task.Delay(1000).Wait();
             UpdateGitLocalBranches();
             Task.Delay(100).Wait();
             WinAPI.ClearConsole(consoleHandle);
@@ -138,6 +141,7 @@ namespace Git_Svn_Console
         {
             var windowHandle = new WindowInteropHelper(Application.Current.MainWindow).Handle;
             var hWndParent = IntPtr.Zero;
+            //TODO
             var fileName = @"C:\Program Files\Git\git-bash.exe";
             var info = new ProcessStartInfo(fileName)
             {
@@ -177,7 +181,7 @@ namespace Git_Svn_Console
         private IntPtr GetGitBashWindowName()
         {
 
-            Process[] processlist = Process.GetProcesses();
+            var processlist = Process.GetProcesses();
             var baseDir = AppDomain.CurrentDomain.BaseDirectory.ToUpper();
             baseDir = baseDir.Replace(":", "");
             baseDir = baseDir.Replace("\\", "/");
@@ -188,7 +192,7 @@ namespace Git_Svn_Console
                     continue;
                 }
 
-                string title = processlist[i].MainWindowTitle.ToUpper() + "/";
+                var title = processlist[i].MainWindowTitle.ToUpper() + "/";
 
                 if (title == "MINGW64:/" + baseDir)
                 {
@@ -249,7 +253,7 @@ namespace Git_Svn_Console
             {
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    SvnBranchBrush = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+                    SvnBranchBrush = new SolidColorBrush(Color.FromRgb(35, 196, 255));
                 }));
             }
 
@@ -290,7 +294,7 @@ namespace Git_Svn_Console
         {
             if (KillAllTasksDialog())
             {
-                IncludeGitBashInGUI();
+                InitAsync();
             }
         }
 
@@ -321,7 +325,18 @@ namespace Git_Svn_Console
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            ExcludeGitBashFromGUI();
+            //ExcludeGitBashFromGUI();
+            client.ClearCurrentInput();
+        }
+
+        private void btnFetch_Click(object sender, RoutedEventArgs e)
+        {
+            client.Fetch();
+        }
+
+        private void btnReload_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateGitLocalBranches();
         }
     }
 }
