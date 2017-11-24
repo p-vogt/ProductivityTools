@@ -120,7 +120,9 @@ namespace Git_Svn_Console
             // TODO             WinAPI.ClearConsole(consoleHandle); as start param
             WinAPI.SendString("cd " + workingDir + "\n", consoleHandle);
             WinAPI.ClearConsole(consoleHandle);
+            Task.Delay(1000).Wait();
             await UpdateUIAsync();
+            Task.Delay(1000).Wait();
             WinAPI.ClearConsole(consoleHandle);
         }
 
@@ -221,11 +223,12 @@ namespace Git_Svn_Console
         private void UpdateCurrentSvnBranch()
         {
             CurrentSvnBranch = client.GetCurrentSvnBranch();
-            if (CurrentSvnBranch.EndsWith("trunk", StringComparison.CurrentCulture))
+            if (CurrentSvnBranch == "<ERROR>"
+             || CurrentSvnBranch.EndsWith("trunk", StringComparison.CurrentCulture))
             {
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
-                     SvnBranchBrush = (SolidColorBrush)labelSvnBranch.Resources["RED_BRUSH"];
+                    SvnBranchBrush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
                 }));
                
             }
@@ -233,7 +236,7 @@ namespace Git_Svn_Console
             {
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    SvnBranchBrush = (SolidColorBrush)labelSvnBranch.Resources["BLACK_BRUSH"];
+                    SvnBranchBrush = new SolidColorBrush(Color.FromRgb(0,0,0));
                 }));
             }
             

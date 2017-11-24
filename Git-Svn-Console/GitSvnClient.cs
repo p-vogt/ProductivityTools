@@ -8,6 +8,7 @@ namespace Git_Svn_Console
 {
     class GitSvnClient
     {
+        private const string ERROR_INDICATOR = "<ERROR>";
         private IntPtr consoleHandle;
         private string workingDirectory;
         public GitSvnClient(string workingDir, IntPtr consoleHandle)
@@ -42,14 +43,38 @@ namespace Git_Svn_Console
 
         public string GetCurrentSvnBranch()
         {
-            var cmd = "/C git svn info --url";
-            var output = WinAPI.PerformShellCommand(workingDirectory, cmd);
+            const string tempFileName = "c:\\temp\\svnbranch.TMP";
+            Directory.CreateDirectory("c:\\temp");
+            WinAPI.SendString($"git svn info --url > \"{tempFileName}\"\n", consoleHandle);
+            Thread.Sleep(1000); // git svn info needs some time
+            var output = "";
+            if (File.Exists(tempFileName))
+            {
+                // when git svn info hasn't finished yet
+                var numTries = 0;
+                while(numTries < 30)
+                {
+                    try
+                    {
+                        ++numTries;
+                        output = File.ReadAllText(tempFileName).Replace("\n", "");
+                    }
+                    catch (IOException ex)
+                    {
+                        Thread.Sleep(100);
+                    }
+                }
+                
+                
+                File.Delete(tempFileName);
+            }
+
             // split type and "branch"
             // ^.*\/(?<category>.+?)\/(?<branch>.+?)\n$
 
             // type/"branch"
             // ^.*\/(?<branch>.+?\/.+?)\n$
-            var regex = new Regex(@"^.*\/(?<repo>.+?)\/(?<category>.+?)\/(?<branch>.+?)\n$", RegexOptions.Multiline | RegexOptions.Compiled);
+            var regex = new Regex(@"^.*\/(?<repo>.+?)\/(?<category>.+?)\/(?<branch>.+?)$", RegexOptions.Multiline | RegexOptions.Compiled);
             if (regex.IsMatch(output))
             {
                 var repo = regex.Match(output).Groups["repo"].ToString();
@@ -65,7 +90,7 @@ namespace Git_Svn_Console
                 return category != "" ? $"{repo}\n{category}/{branch}" :
                                         $"{repo}\n{branch}";
             }
-            return "<ERROR>";
+            return ERROR_INDICATOR;
         }
 
         public void Checkout(string branchname)
