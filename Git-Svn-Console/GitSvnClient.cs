@@ -50,9 +50,9 @@ namespace Git_Svn_Console
             var output = "";
             if (File.Exists(tempFileName))
             {
-                // when git svn info hasn't finished yet
+                // if git svn info hasn't finished yet
                 var numTries = 0;
-                while(numTries < 30)
+                while (numTries < 30)
                 {
                     try
                     {
@@ -64,8 +64,8 @@ namespace Git_Svn_Console
                         Thread.Sleep(100);
                     }
                 }
-                
-                
+
+
                 File.Delete(tempFileName);
             }
 
