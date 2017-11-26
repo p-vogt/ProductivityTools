@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Git_Svn_Console" x:Class="Git_Svn_Console.MainWindow"
         mc:Ignorable="d"
-        Title="GIT SVN Console" Height="580" Width="669" Loaded="Window_Loaded" Closing="Window_Closing" Background="Black">
+        Title="GIT SVN Console" Height="580" Width="669" Loaded="Window_Loaded" Closing="Window_Closing" Background="Black" Icon="pack://siteoforigin:,,,/branch.ico">
     <Grid Background="#FF181818">
         <Grid.RowDefinitions>
             <RowDefinition Height="125"/>

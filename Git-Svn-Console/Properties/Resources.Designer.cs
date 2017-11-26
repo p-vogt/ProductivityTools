@@ -59,5 +59,15 @@ namespace Git_Svn_Console.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Icon ähnlich wie (Symbol).
+        /// </summary>
+        internal static System.Drawing.Icon branch {
+            get {
+                object obj = ResourceManager.GetObject("branch", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }
