@@ -50,7 +50,7 @@ namespace Git_Svn_Console
         }
 
 
-        public string GetCurrentSvnBranch()
+        public string GetCurrentSvnLocation()
         {
             ClearCurrentInput();
             string output = GetCommandResponse("git svn info --url", 10000);

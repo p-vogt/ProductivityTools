@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Git_Svn_Console" x:Class="Git_Svn_Console.MainWindow"
         mc:Ignorable="d"
-        Title="GIT SVN Console" Height="580" Width="669" Loaded="Window_Loaded" Closing="Window_Closing" Background="Black" Icon="pack://siteoforigin:,,,/branch.ico">
+        Title="GIT SVN Console" Height="580" Width="669" Closing="Window_Closing" Background="Black" Icon="pack://siteoforigin:,,,/branch.ico" ContentRendered="Window_ContentRendered">
     <Grid Background="#FF181818">
         <Grid.RowDefinitions>
             <RowDefinition Height="125"/>
@@ -14,13 +14,14 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition x:Name="consoleColumn" Width="*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="btnCommit" Content="SVN Commit" HorizontalAlignment="Left" Margin="10,85,0,0" VerticalAlignment="Top" Width="103" Click="btnCommit_Click" Height="20"/>
-        <TextBlock x:Name="labelSvnBranch" TextWrapping="WrapWithOverflow" Margin="10,10,292,0" VerticalAlignment="Top" FontSize="18" FontWeight="Bold"  Height="49" Text="{Binding CurrentSvnBranch, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" Foreground="{Binding SvnBranchBrush, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
-        <ComboBox x:Name="cBoxCheckoutBranchName" Height="23" Margin="248,85,159,0" VerticalAlignment="Top" IsEditable="True"  ItemsSource="{Binding LocalGitBranches, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" SelectedValue="{Binding TargetGitBranch, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
-        <Button x:Name="btnKillTasks" Content="Kill BG Tasks" Margin="0,85,10,0" VerticalAlignment="Top" Click="btnKillTasks_Click" Height="20" HorizontalAlignment="Right" Width="98"/>
-        <Button x:Name="btnUpdateWorkingDir" Content="Update WD" Margin="0,50,10,0" VerticalAlignment="Top" Click="btnUpdateWorkingDir_Click" HorizontalAlignment="Right" Width="98"/>
-        <Button x:Name="button" Content="Button" Margin="248,24,307,0" VerticalAlignment="Top" Click="button_Click"/>
-        <Button x:Name="btnFetch" Content="SVN Fetch" HorizontalAlignment="Left" Margin="118,85,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="btnFetch_Click"/>
-        <Button x:Name="btnReload" Content="Reload" Margin="0,14,10,0" VerticalAlignment="Top" Height="20" Click="btnReload_Click" HorizontalAlignment="Right" Width="98"/>
+        <Button x:Name="btnCommit" Content="SVN Commit" HorizontalAlignment="Left" Margin="10,85,0,0" VerticalAlignment="Top" Width="103" Click="btnCommit_Click" Height="20" IsEnabled="{Binding IsNoActionInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
+        <TextBlock x:Name="labelSvnBranch" TextWrapping="WrapWithOverflow" Margin="10,35,292,0" VerticalAlignment="Top" FontSize="18" FontWeight="Bold"  Height="35" Text="{Binding CurrentSvnBranch, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" Foreground="{Binding SvnBranchBrush, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
+        <ComboBox x:Name="cBoxCheckoutBranchName" Height="23" Margin="248,85,159,0" VerticalAlignment="Top" IsEditable="True"  ItemsSource="{Binding LocalGitBranches, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" SelectedValue="{Binding TargetGitBranch, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" IsEnabled="{Binding IsNoActionInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
+        <Button x:Name="btnKillTasks" Content="Kill BG Tasks" Margin="0,85,10,0" VerticalAlignment="Top" Click="btnKillTasks_Click" Height="20" HorizontalAlignment="Right" Width="98" IsEnabled="{Binding IsNoActionInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
+        <Button x:Name="btnUpdateWorkingDir" Content="Update WD" Margin="0,50,10,0" VerticalAlignment="Top" Click="btnUpdateWorkingDir_Click" HorizontalAlignment="Right" Width="98" IsEnabled="{Binding IsNoActionInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
+        <Button x:Name="button" Content="Button" Margin="396,10,0,0" VerticalAlignment="Top" Click="button_Click" HorizontalAlignment="Left" Width="106"/>
+        <Button x:Name="btnFetch" Content="SVN Fetch" HorizontalAlignment="Left" Margin="118,85,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="btnFetch_Click" IsEnabled="{Binding IsNoActionInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
+        <Button x:Name="btnReload" Content="Reload" Margin="0,14,10,0" VerticalAlignment="Top" Height="20" Click="btnReload_Click" HorizontalAlignment="Right" Width="98" IsEnabled="{Binding IsNoActionInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
+        <TextBlock x:Name="labelSvnRepo" Margin="10,14,292,0" VerticalAlignment="Top" FontSize="18" FontWeight="Bold"  Height="30" Text="{Binding CurrentSvnRepo, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" Foreground="{Binding SvnRepoBrush, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
     </Grid>
 </Window>

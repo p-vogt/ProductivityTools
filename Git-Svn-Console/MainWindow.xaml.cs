@@ -26,6 +26,43 @@ namespace Git_Svn_Console
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        public bool IsNoActionInProgress => !IsActionInProgress;
+
+        bool isActionInProgress;
+        public bool IsActionInProgress
+        {
+            get
+            {
+                return isActionInProgress;
+            }
+            set
+            {
+                if (value != isActionInProgress)
+                {
+                    isActionInProgress = value;
+                    NotifyPropertyChanged();
+                    NotifyPropertyChanged(nameof(IsNoActionInProgress));
+                }
+            }
+        }
+
+        Brush svnRepoBrush;
+        public Brush SvnRepoBrush
+        {
+            get
+            {
+                return svnRepoBrush;
+            }
+            set
+            {
+                if (value != svnRepoBrush)
+                {
+                    svnRepoBrush = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         Brush svnBranchBrush;
         public Brush SvnBranchBrush
         {
@@ -83,6 +120,23 @@ namespace Git_Svn_Console
                 }
             }
         }
+        string currentSvnRepo;
+        public string CurrentSvnRepo
+        {
+            get
+            {
+                return currentSvnRepo;
+            }
+            set
+            {
+                if (value != currentSvnRepo)
+                {
+                    currentSvnRepo = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         string currentSvnBranch;
         public string CurrentSvnBranch
         {
@@ -119,10 +173,6 @@ namespace Git_Svn_Console
             uint processId;
             WinAPI.GetWindowThreadProcessId(consoleHandle, out processId);
             WinAPI.KillProcessAndChildren((int)processId);
-        }
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            InitAsync();
         }
 
         private void InitAsync()
@@ -213,6 +263,9 @@ namespace Git_Svn_Console
 
         private void btnCommit_Click(object sender, RoutedEventArgs e)
         {
+            var storeActionInProgress = IsActionInProgress;
+            IsActionInProgress = true;
+
             if (CurrentSvnBranch == "trunk")
             {
                 var result = MessageBox.Show("Warning: trunk-commit! Continue?", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -221,6 +274,7 @@ namespace Git_Svn_Console
                     client.Commit();
                 }
             }
+            IsActionInProgress = storeActionInProgress;
         }
 
         private async Task UpdateSVNAsync()
@@ -233,30 +287,43 @@ namespace Git_Svn_Console
 
         private void UpdateCurrentSvnBranch()
         {
-            CurrentSvnBranch = "Determining active SVN Branch...";
+            // in case another action is running -> store value
+            var storeActionInProgress = IsActionInProgress;
+            IsActionInProgress = true;
+
+            CurrentSvnBranch = "";
+            CurrentSvnRepo = "Determining active SVN Branch...";
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                SvnBranchBrush = new SolidColorBrush(Color.FromRgb(0, 120, 0));
+                SvnRepoBrush = new SolidColorBrush(Color.FromRgb(0, 120, 0));
             }));
 
-            CurrentSvnBranch = client.GetCurrentSvnBranch();
-            if (CurrentSvnBranch == GitSvnClient.ERROR_INDICATOR
-             || CurrentSvnBranch.EndsWith("trunk", StringComparison.CurrentCulture))
+            var currentSvnLocation = client.GetCurrentSvnLocation();
+            var location = currentSvnLocation.Split('\n');
+            CurrentSvnRepo = location[0];
+            if(location.Length > 0)
             {
-                Dispatcher.BeginInvoke(new Action(() =>
+                CurrentSvnBranch = location[1];
+                if (CurrentSvnBranch == GitSvnClient.ERROR_INDICATOR
+                 || CurrentSvnBranch == "trunk")
                 {
-                    SvnBranchBrush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-                }));
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        SvnRepoBrush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+                    }));
 
-            }
-            else
-            {
-                Dispatcher.BeginInvoke(new Action(() =>
+                }
+                else
                 {
-                    SvnBranchBrush = new SolidColorBrush(Color.FromRgb(35, 196, 255));
-                }));
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        SvnRepoBrush = new SolidColorBrush(Color.FromRgb(35, 196, 255));
+                        SvnBranchBrush = SvnRepoBrush;
+                    }));
+                }
             }
 
+            IsActionInProgress = storeActionInProgress; // set to status before this method
         }
 
         private void UpdateGitLocalBranches()
@@ -337,6 +404,11 @@ namespace Git_Svn_Console
         private void btnReload_Click(object sender, RoutedEventArgs e)
         {
             UpdateGitLocalBranches();
+        }
+
+        private void Window_ContentRendered(object sender, EventArgs e)
+        {
+            InitAsync();
         }
     }
 }
