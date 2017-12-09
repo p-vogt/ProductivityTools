@@ -392,7 +392,9 @@ namespace Git_Svn_Console
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            //ExcludeGitBashFromGUI();
+
+            GitSvnCloneWindow win = new GitSvnCloneWindow(client);
+            win.Show();
             client.ClearCurrentInput();
         }
 

@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace Git_Svn_Console
 {
-    class GitSvnClient
+    public class GitSvnClient
     {
         public const string ERROR_INDICATOR = "<ERROR>";
         private IntPtr consoleHandle;
@@ -49,6 +49,34 @@ namespace Git_Svn_Console
             }
         }
 
+        internal void CloneRepository(string sourceRepo, string destinationFolder, string revision)
+        {
+            if (sourceRepo == null)
+            {
+                throw new NullReferenceException(nameof(sourceRepo));
+            }
+            if (destinationFolder == null)
+            {
+                throw new NullReferenceException(nameof(destinationFolder));
+            }
+            if (revision == null)
+            {
+                throw new NullReferenceException(nameof(revision));
+            }
+            destinationFolder = destinationFolder.Replace("\\", "/");
+            Directory.CreateDirectory(destinationFolder);
+            if(Directory.Exists(destinationFolder))
+            {
+                WinAPI.SendString($"cd {destinationFolder}\n", consoleHandle);
+
+                WinAPI.SendString($"git svn clone -r{revision}:HEAD {sourceRepo}\n", consoleHandle);
+            }
+            else
+            {
+                // TODO ERROR 
+            }
+
+        }
 
         public string GetCurrentSvnLocation()
         {
@@ -141,15 +169,28 @@ namespace Git_Svn_Console
             return GetCommandResponse("pwd", 5000);
         }
 
-        internal void Fetch()
+        public void Fetch()
         {
             ClearCurrentInput();
             WinAPI.SendString($"git svn rebase\n", consoleHandle);
         }
 
-        internal void ClearCurrentInput()
+        public void ClearCurrentInput()
         {
             WinAPI.SendCtrlChar('U', consoleHandle);
+        }
+        
+        public int GetCurrentSvnRevision(string repoUrl)
+        {
+            var response = GetCommandResponse($"svn info {repoUrl}", 3000);
+            string revisionNumber = "-1";
+            var regex = new Regex(@"Revision: (?<number>\d+)");
+            if (regex.IsMatch(response))
+            {
+                revisionNumber = regex.Match(response).Groups["number"].ToString();
+            }
+
+            return int.Parse(revisionNumber);
         }
     }
 }
