@@ -1,27 +1,110 @@
-﻿<Window
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Git_Svn_Console" x:Class="Git_Svn_Console.MainWindow"
-        mc:Ignorable="d"
-        Title="GIT SVN Console" Height="580" Width="669" Closing="Window_Closing" Background="Black" Icon="pack://siteoforigin:,,,/branch.ico" ContentRendered="Window_ContentRendered">
-    <Grid Background="#FF181818">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="125"/>
-            <RowDefinition x:Name="consoleRow" Height="*"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="consoleColumn" Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Button x:Name="btnCommit" Content="SVN Commit" HorizontalAlignment="Left" Margin="10,85,0,0" VerticalAlignment="Top" Width="103" Click="btnCommit_Click" Height="20" IsEnabled="{Binding IsNoActionInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
-        <TextBlock x:Name="labelSvnBranch" TextWrapping="WrapWithOverflow" Margin="10,35,292,0" VerticalAlignment="Top" FontSize="18" FontWeight="Bold"  Height="35" Text="{Binding CurrentSvnBranch, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" Foreground="{Binding SvnBranchBrush, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
-        <ComboBox x:Name="cBoxCheckoutBranchName" Height="23" Margin="248,85,159,0" VerticalAlignment="Top" IsEditable="True"  ItemsSource="{Binding LocalGitBranches, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" SelectedValue="{Binding TargetGitBranch, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" IsEnabled="{Binding IsNoActionInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
-        <Button x:Name="btnKillTasks" Content="Kill BG Tasks" Margin="0,85,10,0" VerticalAlignment="Top" Click="btnKillTasks_Click" Height="20" HorizontalAlignment="Right" Width="98" IsEnabled="{Binding IsNoActionInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
-        <Button x:Name="btnUpdateWorkingDir" Content="Update WD" Margin="0,50,10,0" VerticalAlignment="Top" Click="btnUpdateWorkingDir_Click" HorizontalAlignment="Right" Width="98" IsEnabled="{Binding IsNoActionInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
-        <Button x:Name="button" Content="Button" Margin="396,10,0,0" VerticalAlignment="Top" Click="button_Click" HorizontalAlignment="Left" Width="106"/>
-        <Button x:Name="btnFetch" Content="SVN Fetch" HorizontalAlignment="Left" Margin="118,85,0,0" VerticalAlignment="Top" Width="86" Height="20" Click="btnFetch_Click" IsEnabled="{Binding IsNoActionInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
-        <Button x:Name="btnReload" Content="Reload" Margin="0,14,10,0" VerticalAlignment="Top" Height="20" Click="btnReload_Click" HorizontalAlignment="Right" Width="98" IsEnabled="{Binding IsNoActionInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
-        <TextBlock x:Name="labelSvnRepo" Margin="10,14,292,0" VerticalAlignment="Top" FontSize="18" FontWeight="Bold"  Height="30" Text="{Binding CurrentSvnRepo, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" Foreground="{Binding SvnRepoBrush, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"/>
-    </Grid>
+﻿<Window 
+  x:Class="Git_Svn_Console.MainWindow"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=Microsoft.Windows.Shell"
+  xmlns:local="clr-namespace:Git_Svn_Console"
+  WindowStyle="None"
+  Icon="branch.ico"
+  x:Name="ThisWindow"
+  Title="GIT SVN Console" Height="580" Width="669" Closing="Window_Closing" ContentRendered="Window_ContentRendered">
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static shell:SystemCommands.CloseWindowCommand}"
+                    Executed="OnSystemCommandCloseWindow"/>
+        <CommandBinding Command="{x:Static shell:SystemCommands.MinimizeWindowCommand}"
+                    Executed="OnMinimizeWindowCommand"/>
+    </Window.CommandBindings>
+    <Window.Resources>
+        <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#FF292727"/>
+        <SolidColorBrush x:Key="HeaderBackgroundBrushHover" Color="#FF423F3F"/>
+        <SolidColorBrush x:Key="HeaderBackgroundBrushPressed" Color="#FF0090E2"/>
+        <Style x:Key="WindowButton" TargetType="Button" BasedOn="{StaticResource ButtonStyle}" >
+            <Setter Property="MinHeight" Value="16" />
+            <Setter Property="MinWidth" Value="16" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="MouseOver">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Bd" Storyboard.TargetProperty="Fill">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource HeaderBackgroundBrushHover}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Bd" Storyboard.TargetProperty="Fill">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource HeaderBackgroundBrushPressed}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Bd" Storyboard.TargetProperty="Stroke">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource ButtonHoverBorderBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <Rectangle x:Name="Bd" Fill="{DynamicResource HeaderBackgroundBrush}" StrokeThickness="1" />
+                            <ContentControl x:Name="ContentControl" Foreground="{TemplateBinding Foreground}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                                <ContentPresenter x:Name="contentPresenter" />
+                            </ContentControl>
+                            <Rectangle x:Name="FocusedVisualElement" Stroke="{StaticResource ButtonPressedBorderBrush}" Visibility="Collapsed" StrokeThickness="2" />
+                            <Rectangle x:Name="DisabledVisualElement" Fill="{StaticResource DisabledVisualElement}" Visibility="Collapsed" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="GlassWindowStyle" TargetType="{x:Type local:MainWindow}">
+            <Setter Property="shell:WindowChrome.WindowChrome">
+                <Setter.Value>
+                    <shell:WindowChrome GlassFrameThickness="0" 
+                            ResizeBorderThickness="5"
+                            CaptionHeight="50"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type local:MainWindow}">
+                        <Grid Background="{DynamicResource HeaderBackgroundBrush}">
+                            <!-- This is the ContentPresenter that displays the window content. -->
+                            <Border Margin="0,0,0,0">
+                                <ContentPresenter Content="{TemplateBinding Content}"/>
+                            </Border>
+                            <!-- Window Border Content -->
+                            <Image Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Icon}" Width="16" Height="16" Margin="10,8,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                            <!-- Minimize Window Button -->
+                            <Button VerticalAlignment="Top" HorizontalAlignment="Right" 
+                                    shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                                    Height="25" Width="40"
+                                    Command="{x:Static shell:SystemCommands.MinimizeWindowCommand}" Padding="0"
+                                    CommandParameter="{Binding ElementName=ThisWindow}" Margin="0,0,50,0" Panel.ZIndex="99" Style="{DynamicResource WindowButton}">
+
+                                <Image shell:WindowChrome.IsHitTestVisibleInChrome="True"  Margin="5,5,0,5" Source="Minimize.png"/>
+                            </Button>
+                            <!-- Close Window Button -->
+                            <Button VerticalAlignment="Top" HorizontalAlignment="Right"
+                                    Height="25" Width="40"
+                                    shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                                    Command="{x:Static shell:SystemCommands.CloseWindowCommand}" Padding="0"
+                                    CommandParameter="{Binding ElementName=ThisWindow}" Margin="0,0,5,0" Panel.ZIndex="99" Style="{DynamicResource WindowButton}">
+                                <Image Source="Close.png" Width="16" Height="16" Margin="5,5,5,0"  shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                            </Button>
+                            <!-- Window Title -->
+                            <TextBlock VerticalAlignment="Top" TextAlignment="Left" Margin="30,7,0,0"
+                                    Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Title}" Foreground="#FFDEDEDE" FontSize="14" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Window.Style>
+        <Binding Mode="OneWay" Source="{StaticResource GlassWindowStyle}"/>
+    </Window.Style>
+    <local:MainWindowContent x:Name="WindowContent" Margin="0,30,0,0"/>
+
 </Window>
