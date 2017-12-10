@@ -24,7 +24,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Grid>
+                        <Grid Margin="0,0,0,-5">
                             <VisualStateManager.VisualStateGroups>
                                 <VisualStateGroup x:Name="CommonStates">
                                     <VisualState x:Name="Normal" />
@@ -81,16 +81,16 @@
                                     shell:WindowChrome.IsHitTestVisibleInChrome="True"
                                     Height="25" Width="40"
                                     Command="{x:Static shell:SystemCommands.MinimizeWindowCommand}" Padding="0"
-                                    CommandParameter="{Binding ElementName=ThisWindow}" Margin="0,0,50,0" Panel.ZIndex="99" Style="{DynamicResource WindowButton}">
+                                    CommandParameter="{Binding ElementName=ThisWindow}" Margin="0,0,40,0" Panel.ZIndex="99" Style="{DynamicResource WindowButton}">
 
-                                <Image shell:WindowChrome.IsHitTestVisibleInChrome="True"  Margin="5,5,0,5" Source="Minimize.png"/>
+                                <Image shell:WindowChrome.IsHitTestVisibleInChrome="True" HorizontalAlignment="Center" Margin="0,5,0,5" Source="Minimize.png"/>
                             </Button>
                             <!-- Close Window Button -->
                             <Button VerticalAlignment="Top" HorizontalAlignment="Right"
                                     Height="25" Width="40"
                                     shell:WindowChrome.IsHitTestVisibleInChrome="True"
                                     Command="{x:Static shell:SystemCommands.CloseWindowCommand}" Padding="0"
-                                    CommandParameter="{Binding ElementName=ThisWindow}" Margin="0,0,5,0" Panel.ZIndex="99" Style="{DynamicResource WindowButton}">
+                                    CommandParameter="{Binding ElementName=ThisWindow}" Margin="0" Panel.ZIndex="99" Style="{DynamicResource WindowButton}">
                                 <Image Source="Close.png" Width="16" Height="16" Margin="5,5,5,0"  shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                             </Button>
                             <!-- Window Title -->
