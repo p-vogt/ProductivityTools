@@ -15,7 +15,7 @@ namespace Git_Svn_Console
     /// <summary>
     /// Interaktionslogik für MainWindowContent.xaml
     /// </summary>
-    public partial class MainWindowContent : UserControl
+    public partial class MainWindowContent : UserControl, INotifyPropertyChanged
     {
         Window mainWindow;
         double mainWindowHeaderSize;
@@ -208,6 +208,7 @@ namespace Git_Svn_Console
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Minimized
             };
+
             consoleProcess = Process.Start(fileName);
             consoleHandle = IntPtr.Zero;
             while (consoleHandle == IntPtr.Zero)
@@ -236,6 +237,8 @@ namespace Git_Svn_Console
             //Perform an initial call to set the size.
             WindowResize(new object(), new EventArgs());
         }
+
+   
 
         private IntPtr GetGitBashWindowName()
         {
@@ -401,7 +404,6 @@ namespace Git_Svn_Console
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
-
             GitSvnCloneWindow win = new GitSvnCloneWindow(client);
             win.Show();
             client.ClearCurrentInput();

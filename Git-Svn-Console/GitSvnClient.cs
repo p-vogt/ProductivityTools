@@ -183,7 +183,7 @@ namespace Git_Svn_Console
         public int GetCurrentSvnRevision(string repoUrl)
         {
             var response = GetCommandResponse($"svn info {repoUrl}", 3000);
-            string revisionNumber = "-1";
+            var revisionNumber = "-1";
             var regex = new Regex(@"Revision: (?<number>\d+)");
             if (regex.IsMatch(response))
             {
