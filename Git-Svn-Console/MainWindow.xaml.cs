@@ -39,6 +39,7 @@ namespace Git_Svn_Console
 
         private void WindowContent_Loaded(object sender, RoutedEventArgs e)
         {
+
             MainWindowContent.RemoveTemporaryCmdFiles();
         }
     }

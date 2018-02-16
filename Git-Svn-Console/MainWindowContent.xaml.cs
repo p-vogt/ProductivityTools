@@ -133,7 +133,7 @@ namespace Git_Svn_Console
             }
         }
 
-        Brush svnBranchBrush;
+        Brush svnBranchBrush = new SolidColorBrush(Color.FromRgb(35, 196, 255));
         public Brush SvnBranchBrush
         {
             get
@@ -380,7 +380,7 @@ namespace Git_Svn_Console
                 {
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        SvnRepoBrush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+                        SvnBranchBrush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
                     }));
 
                 }
@@ -475,6 +475,12 @@ namespace Git_Svn_Console
             client.Fetch();
         }
 
-
+        private void btnCreateSvnBranch_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateGitLocalBranches();
+            GitSvnCreateBranchWindow w = new GitSvnCreateBranchWindow(client);
+            w.ShowDialog(TargetGitBranch);
+            UpdateGitLocalBranches();
+        }
     }
 }

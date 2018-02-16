@@ -77,7 +77,11 @@ namespace Git_Svn_Console
             }
 
         }
-
+        public void CreateSvnBranch(string branchName)
+        {
+            string output = GetCommandResponse($"git svn branch -n -m \"create Branch {branchName}\"  {branchName}", 10000);
+            GetCommandResponse($"git svn branch -m \"create Branch {branchName}\"  {branchName}", 10000);
+        }
         public string GetCurrentSvnLocation()
         {
             ClearCurrentInput();
@@ -194,6 +198,11 @@ namespace Git_Svn_Console
             }
 
             return int.Parse(revisionNumber);
+        }
+
+        public void CreateGitSvnBranch(string branchName)
+        {
+            var output = GetCommandResponse($"git checkout -b {branchName} origin/{branchName}", 10000);
         }
     }
 }
