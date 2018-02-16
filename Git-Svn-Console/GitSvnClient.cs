@@ -65,7 +65,7 @@ namespace Git_Svn_Console
             }
             destinationFolder = destinationFolder.Replace("\\", "/");
             Directory.CreateDirectory(destinationFolder);
-            if(Directory.Exists(destinationFolder))
+            if (Directory.Exists(destinationFolder))
             {
                 WinAPI.SendString($"cd {destinationFolder}\n", consoleHandle);
 
@@ -123,10 +123,13 @@ namespace Git_Svn_Console
             }
         }
 
+        public static readonly string TEMP_CMD_DIRECTORY = @"c:\temp\";
+        public static readonly string TEMP_CMD_FILE_NAME = @"cmd_";
+        public static readonly string TEMP_CMD_FILE_NAME_REGEX = @"cmd_\d+.TMP";
         private string GetCommandResponse(string command, long timeoutMs)
         {
             ClearCurrentInput();
-            var tempFileName = $"c:\\temp\\cmd_{CommandResponseCounter}.TMP";
+            var tempFileName = $"{TEMP_CMD_DIRECTORY}{TEMP_CMD_FILE_NAME}{CommandResponseCounter}.TMP";
             Directory.CreateDirectory("c:\\temp");
             WinAPI.SendString($"{command} > \"{tempFileName}\"\n", consoleHandle);
             var sw = new Stopwatch();
@@ -179,7 +182,7 @@ namespace Git_Svn_Console
         {
             WinAPI.SendCtrlChar('U', consoleHandle);
         }
-        
+
         public int GetCurrentSvnRevision(string repoUrl)
         {
             var response = GetCommandResponse($"svn info {repoUrl}", 3000);

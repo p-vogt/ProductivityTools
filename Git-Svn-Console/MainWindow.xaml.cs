@@ -1,15 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Media;
 
 namespace Git_Svn_Console
 {
@@ -36,6 +28,12 @@ namespace Git_Svn_Console
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             WindowContent.Window_Closing(sender, e);
+        }
+
+        private void WindowContent_Loaded(object sender, RoutedEventArgs e)
+        {
+            MainWindowContent.RemoveTemporaryCmdFiles();
+
         }
     }
 }

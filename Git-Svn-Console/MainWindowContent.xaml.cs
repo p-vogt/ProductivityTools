@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -38,6 +40,23 @@ namespace Git_Svn_Console
         }
 
         public bool IsNoActionInProgress => !IsActionInProgress;
+
+        public static void RemoveTemporaryCmdFiles()
+        {
+            // clear old cmd files
+            var tempDir = GitSvnClient.TEMP_CMD_DIRECTORY;
+            var filter = new Regex(tempDir.Replace("\\", "\\\\") + GitSvnClient.TEMP_CMD_FILE_NAME_REGEX);
+
+            var files = Directory.GetFiles(tempDir);
+
+            foreach (var file in files)
+            {
+                if (filter.IsMatch(file))
+                {
+                    File.Delete(file);
+                }
+            }
+        }
 
         bool isActionInProgress;
         public bool IsActionInProgress
@@ -238,7 +257,7 @@ namespace Git_Svn_Console
             WindowResize(new object(), new EventArgs());
         }
 
-   
+
 
         private IntPtr GetGitBashWindowName()
         {
@@ -355,6 +374,7 @@ namespace Git_Svn_Console
                 consoleProcess.Close();
             }
             KillAllTasksDialog();
+            RemoveTemporaryCmdFiles();
         }
 
         private static bool KillAllTasksDialog()
