@@ -7,7 +7,7 @@
   WindowStyle="None"
   Icon="branch.ico"
   x:Name="ThisWindow"
-  Title="GIT SVN Console" Height="461.5" Width="669" Closing="Window_Closing" ContentRendered="Window_ContentRendered">
+  Title="GIT SVN Console" Height="461.5" Width="650" Closing="Window_Closing" ContentRendered="Window_ContentRendered" MinWidth="400">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static shell:SystemCommands.CloseWindowCommand}"
                     Executed="OnSystemCommandCloseWindow"/>
@@ -105,6 +105,6 @@
     <Window.Style>
         <Binding Mode="OneWay" Source="{StaticResource GlassWindowStyle}"/>
     </Window.Style>
-    <local:MainWindowContent x:Name="WindowContent" Margin="0,30,0,0" Loaded="WindowContent_Loaded"/>
+    <local:MainWindowContent x:Name="WindowContent" Margin="0,40,0,0" Loaded="WindowContent_Loaded"/>
 
 </Window>

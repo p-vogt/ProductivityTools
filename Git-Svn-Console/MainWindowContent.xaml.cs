@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 
@@ -19,16 +20,54 @@ namespace Git_Svn_Console
     /// </summary>
     public partial class MainWindowContent : UserControl, INotifyPropertyChanged
     {
+        public class RelayCommand : ICommand
+        {
+            private Action<object> execute;
+            private Func<object, bool> canExecute;
+
+            public event EventHandler CanExecuteChanged
+            {
+                add { CommandManager.RequerySuggested += value; }
+                remove { CommandManager.RequerySuggested -= value; }
+            }
+
+            public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
+            {
+                this.execute = execute;
+                this.canExecute = canExecute;
+            }
+
+            public bool CanExecute(object parameter)
+            {
+                return this.canExecute == null || this.canExecute(parameter);
+            }
+
+            public void Execute(object parameter)
+            {
+                this.execute(parameter);
+            }
+        }
+
         Window mainWindow;
         double mainWindowHeaderSize;
+        public RelayCommand CloneCommand { get; set; }
+        public RelayCommand KillBGTasksCommand { get; set; }
+        public RelayCommand ReloadCommand { get; set; }
+        public RelayCommand UpdateWDCommand { get; set; }
+
         public void SetMainWindow(MainWindow w, double mainWindowHeaderSize)
         {
             this.WorkingDir = w.WorkingDir;
             this.mainWindowHeaderSize = mainWindowHeaderSize;
             mainWindow = w;
+
         }
         public MainWindowContent()
         {
+            CloneCommand = new RelayCommand(o => OpenCloneWindow());
+            KillBGTasksCommand = new RelayCommand(o => KillTasks());
+            ReloadCommand = new RelayCommand(o => UpdateGitLocalBranches());
+            UpdateWDCommand = new RelayCommand(o => UpdateWorkigDirectory());
             InitializeComponent();
         }
         public event PropertyChangedEventHandler PropertyChanged;
@@ -390,7 +429,7 @@ namespace Git_Svn_Console
             return result == MessageBoxResult.Yes;
         }
 
-        private void btnKillTasks_Click(object sender, RoutedEventArgs e)
+        private void KillTasks()
         {
             if (KillAllTasksDialog())
             {
@@ -418,14 +457,15 @@ namespace Git_Svn_Console
             }
         }
 
-        private void btnUpdateWorkingDir_Click(object sender, RoutedEventArgs e)
+        private void UpdateWorkigDirectory()
         {
             WorkingDir = client.DetermineWorkingDirectory();
+            ReloadCommand.Execute(null);
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private void OpenCloneWindow()
         {
-            GitSvnCloneWindow win = new GitSvnCloneWindow(client);
+            var win = new GitSvnCloneWindow(client);
             win.Show();
             client.ClearCurrentInput();
         }
@@ -435,10 +475,6 @@ namespace Git_Svn_Console
             client.Fetch();
         }
 
-        private void btnReload_Click(object sender, RoutedEventArgs e)
-        {
-            UpdateGitLocalBranches();
-        }
 
     }
 }
