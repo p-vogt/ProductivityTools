@@ -10,6 +10,13 @@ namespace Git_Svn_Console
     /// </summary>
     public partial class MainWindow : Window
     {
+        public string WorkingDir { get; private set; } = "";
+        public MainWindow(string workingDirectory)
+        {
+            WorkingDir = workingDirectory;
+            InitializeComponent();
+
+        }
         private void OnSystemCommandCloseWindow(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.CloseWindow((Window)e.Parameter);
@@ -33,7 +40,6 @@ namespace Git_Svn_Console
         private void WindowContent_Loaded(object sender, RoutedEventArgs e)
         {
             MainWindowContent.RemoveTemporaryCmdFiles();
-
         }
     }
 }

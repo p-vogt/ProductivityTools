@@ -21,8 +21,9 @@ namespace Git_Svn_Console
     {
         Window mainWindow;
         double mainWindowHeaderSize;
-        public void SetMainWindow(Window w, double mainWindowHeaderSize)
+        public void SetMainWindow(MainWindow w, double mainWindowHeaderSize)
         {
+            this.WorkingDir = w.WorkingDir;
             this.mainWindowHeaderSize = mainWindowHeaderSize;
             mainWindow = w;
         }
@@ -184,7 +185,7 @@ namespace Git_Svn_Console
             }
         }
         //TODO startup path
-        private string workingDir = "D:/temp/SvnGitTest2/SvnGit_V2";
+        public string WorkingDir { get; set; }
         private Process consoleProcess;
         private IntPtr hWndOriginalParent;
         private IntPtr consoleHandle;
@@ -207,7 +208,7 @@ namespace Git_Svn_Console
             }
             IncludeGitBashInGUI(mainWindow);
             // TODO workingDir as start param
-            WinAPI.SendString("cd " + workingDir + "\n", consoleHandle);
+            WinAPI.SendString("cd " + WorkingDir + "\n", consoleHandle);
             WinAPI.ClearConsole(consoleHandle);
             Task.Delay(1000).Wait();
             UpdateGitLocalBranches();
@@ -243,7 +244,7 @@ namespace Git_Svn_Console
                 //TODO
                 consoleHandle = GetGitBashWindowName();
             }
-            client = new GitSvnClient(workingDir, consoleHandle);
+            client = new GitSvnClient(WorkingDir, consoleHandle);
             const int GWL_STYLE = -16;
             const int WS_VISIBLE = 0x10000000;
             WinAPI.SetWindowLong(consoleHandle, GWL_STYLE, WS_VISIBLE);
@@ -419,7 +420,7 @@ namespace Git_Svn_Console
 
         private void btnUpdateWorkingDir_Click(object sender, RoutedEventArgs e)
         {
-            workingDir = client.DetermineWorkingDirectory();
+            WorkingDir = client.DetermineWorkingDirectory();
         }
 
         private void button_Click(object sender, RoutedEventArgs e)
