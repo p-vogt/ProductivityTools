@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Git_Svn_Console"
              mc:Ignorable="d" 
-             d:DesignHeight="300" MinWidth="350">
+             d:DesignHeight="350" MinWidth="375" d:DesignWidth="464.333">
     <Grid Background="#FF181818">
         <Grid.RowDefinitions>
             <RowDefinition Height="143"/>
@@ -19,6 +19,7 @@
             <MenuItem Header="Reload Git" Command="{Binding ReloadCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindowContent}}}" Width ="75" Height="24" Foreground="#FFBABABA"/>
             <MenuItem Header="Update WD" Command="{Binding UpdateWDCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindowContent}}}" Width ="75" Height="24" Foreground="#FFBABABA"/>
             <MenuItem Header="Kill BG Tasks" Command="{Binding KillBGTasksCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindowContent}}}" Width ="75" Height="24" Foreground="#FFBABABA"/>
+            <MenuItem Header="SVN Create Branch" Command="{Binding CreateGitSvnBranchCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindowContent}}}" Width ="114" Height="24" Foreground="#FFBABABA"/>
 
         </Menu>
         <Button x:Name="btnCommit" Content="SVN Commit" Margin="10,29,0,0" VerticalAlignment="Top" Click="btnCommit_Click" Height="30" IsEnabled="{Binding IsNoActionInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindowContent}}}" HorizontalAlignment="Left" Width="103" HorizontalContentAlignment="Left"/>
@@ -42,6 +43,5 @@
                 </LinearGradientBrush>
             </Rectangle.Fill>
         </Rectangle>
-        <Button x:Name="btnCreateSvnBranch" Content="SVN Create Branch" Margin="185,99,0,0" VerticalAlignment="Top" Height="30" IsEnabled="{Binding IsNoActionInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindowContent}}}" HorizontalAlignment="Left" Width="144" HorizontalContentAlignment="Left" Click="btnCreateSvnBranch_Click"/>
     </Grid>
 </UserControl>

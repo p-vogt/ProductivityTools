@@ -7,7 +7,7 @@
   WindowStyle="None"
   Icon="branch.ico"
   x:Name="ThisWindow"
-  Title="GIT SVN Console" Height="461.5" Width="650" Closing="Window_Closing" ContentRendered="Window_ContentRendered" MinWidth="400">
+  Title="GIT SVN Console" Height="461.5" Width="650" Closing="Window_Closing" ContentRendered="Window_ContentRendered" MinWidth="450">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static shell:SystemCommands.CloseWindowCommand}"
                     Executed="OnSystemCommandCloseWindow"/>

@@ -54,6 +54,7 @@ namespace Git_Svn_Console
         public RelayCommand KillBGTasksCommand { get; set; }
         public RelayCommand ReloadCommand { get; set; }
         public RelayCommand UpdateWDCommand { get; set; }
+        public RelayCommand CreateGitSvnBranchCommand { get; set; }
 
         public void SetMainWindow(MainWindow w, double mainWindowHeaderSize)
         {
@@ -68,6 +69,7 @@ namespace Git_Svn_Console
             KillBGTasksCommand = new RelayCommand(o => KillTasks());
             ReloadCommand = new RelayCommand(o => UpdateGitLocalBranches());
             UpdateWDCommand = new RelayCommand(o => UpdateWorkigDirectory());
+            CreateGitSvnBranchCommand = new RelayCommand(o => CreateGitSvnBranch());
             InitializeComponent();
         }
         public event PropertyChangedEventHandler PropertyChanged;
@@ -475,10 +477,10 @@ namespace Git_Svn_Console
             client.Fetch();
         }
 
-        private void btnCreateSvnBranch_Click(object sender, RoutedEventArgs e)
+        private void CreateGitSvnBranch()
         {
             UpdateGitLocalBranches();
-            GitSvnCreateBranchWindow w = new GitSvnCreateBranchWindow(client);
+            var w = new GitSvnCreateBranchWindow(client);
             w.ShowDialog(TargetGitBranch);
             UpdateGitLocalBranches();
         }
