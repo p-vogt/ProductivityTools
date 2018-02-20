@@ -17,9 +17,9 @@
         <Menu Panel.ZIndex="99" Background="{x:Null}" Height="24" VerticalAlignment="Top">
             <MenuItem Header="SVN Clone" Command="{Binding CloneCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindowContent}}}" Width ="75" Height="24" Foreground="#FFBABABA" Focusable="False"/>
             <MenuItem Header="Reload Git" Command="{Binding ReloadCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindowContent}}}" Width ="75" Height="24" Foreground="#FFBABABA" Focusable="False"/>
-            <MenuItem Header="Update WD" Command="{Binding UpdateWDCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindowContent}}}" Width ="75" Height="24" Foreground="#FFBABABA" Focusable="False"/>
-            <MenuItem Header="Kill BG Tasks" Command="{Binding KillBGTasksCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindowContent}}}" Width ="75" Height="24" Foreground="#FFBABABA" Focusable="False"/>
-            <MenuItem Header="SVN Create Branch" Command="{Binding CreateGitSvnBranchCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindowContent}}}" Width ="114" Height="24" Foreground="#FFBABABA" Focusable="False"/>
+            <MenuItem Header="Update WD" Command="{Binding UpdateWDCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindowContent}}}" Width ="78" Height="24" Foreground="#FFBABABA" Focusable="False"/>
+            <MenuItem Header="Kill BG Tasks" Command="{Binding KillBGTasksCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindowContent}}}" Width ="82" Height="24" Foreground="#FFBABABA" Focusable="False"/>
+            <MenuItem Header="SVN Create Branch" Command="{Binding CreateGitSvnBranchCommand, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindowContent}}}" Width ="120" Height="24" Foreground="#FFBABABA" Focusable="False"/>
 
         </Menu>
         <Button x:Name="btnCommit" Content="SVN Commit" Margin="10,32,0,0" VerticalAlignment="Top" Click="btnCommit_Click" Height="30" IsEnabled="{Binding IsNoActionInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindowContent}}}" HorizontalAlignment="Left" Width="103" HorizontalContentAlignment="Left" Focusable="False"/>
