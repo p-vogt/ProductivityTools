@@ -347,6 +347,10 @@ namespace Git_Svn_Console
                     client.Commit();
                 }
             }
+            else
+            {
+                client.Commit();
+            }
             IsActionInProgress = storeActionInProgress;
         }
 
