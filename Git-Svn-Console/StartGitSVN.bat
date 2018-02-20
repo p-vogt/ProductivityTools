@@ -1,6 +1,6 @@
 @echo off
 setlocal ENABLEDELAYEDEXPANSION
-set path_=%1
-set path_=%path:\=/%
+set p="%1"
+set p=%p:\=/%
 cd /d %~dp0
-start "" "Git-Svn-Console.exe" %path_%
+start "" "Git-Svn-Console.exe" %p%
