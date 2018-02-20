@@ -33,6 +33,7 @@ namespace Git_Svn_Console
                 {
                     svnHeadRevision = value;
                     NotifyPropertyChanged();
+                    NotifyPropertyChanged(nameof(IsCloneAllowed));
                 }
             }
         }
@@ -52,6 +53,7 @@ namespace Git_Svn_Console
                 {
                     svnCloneStartRevision = value;
                     NotifyPropertyChanged();
+                    NotifyPropertyChanged(nameof(IsCloneAllowed));
                 }
             }
         }

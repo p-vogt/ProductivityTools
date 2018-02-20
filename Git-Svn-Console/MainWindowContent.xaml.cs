@@ -262,7 +262,7 @@ namespace Git_Svn_Console
             var windowHandle = new WindowInteropHelper(w).Handle;
             var hWndParent = IntPtr.Zero;
             //TODO
-            var fileName = @"C:\Program Files\Git\git-bash.exe";
+            var fileName = @"D:\Program Files\Git\git-bash.exe";
             var info = new ProcessStartInfo(fileName)
             {
                 UseShellExecute = false,
