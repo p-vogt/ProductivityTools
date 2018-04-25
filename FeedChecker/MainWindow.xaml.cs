@@ -360,7 +360,7 @@ namespace FeedChecker
 
         private void btnOpenILIAS_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process.Start("https://nbl.fh-bielefeld.de/");
+            System.Diagnostics.Process.Start("https://nbl.fh-bielefeld.de/ilias.php?baseClass=ilPersonalDesktopGUI&cmd=jumpToSelectedItems");
         }
 
         private void btnChangeFeedUrl_Click(object sender, RoutedEventArgs e)
