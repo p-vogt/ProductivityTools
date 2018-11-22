@@ -18,13 +18,8 @@
         <DataGrid x:Name="dGridRemoved" Margin="10,26,6,10" ItemsSource="{Binding RemovedJobs, ElementName=window}" AutoGenerateColumns="False" IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Name}" ClipboardContentBinding="{x:Null}" Header="Name"/>
-                <DataGridHyperlinkColumn Binding="{Binding Url}" ContentBinding="{x:Null}" ClipboardContentBinding="{x:Null}" Header="Url">
-                    <DataGridHyperlinkColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <EventSetter Event="Hyperlink.Click" Handler="OnHyperlinkClick" />
-                        </Style>
-                    </DataGridHyperlinkColumn.ElementStyle>
-                </DataGridHyperlinkColumn>
+                <DataGridTextColumn Binding="{Binding Department}" ClipboardContentBinding="{x:Null}" Header="Department" />
+                <DataGridTextColumn Binding="{Binding Location}" ClipboardContentBinding="{x:Null}" Header="Location" />
             </DataGrid.Columns>
         </DataGrid>
         <GridSplitter x:Name="gridSplitter" HorizontalAlignment="Stretch" Grid.Column="1"/>
@@ -32,13 +27,8 @@
         <DataGrid x:Name="dGridAdded" ItemsSource="{Binding AddedJobs, ElementName=window}" AutoGenerateColumns="False" IsReadOnly="True" Grid.Column="2" Margin="5,26,10,10">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Name}" ClipboardContentBinding="{x:Null}" Header="Name"/>
-                <DataGridHyperlinkColumn Binding="{Binding Url}" ContentBinding="{x:Null}" ClipboardContentBinding="{x:Null}" Header="Url">
-                    <DataGridHyperlinkColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <EventSetter Event="Hyperlink.Click" Handler="OnHyperlinkClick" />
-                        </Style>
-                    </DataGridHyperlinkColumn.ElementStyle>
-                </DataGridHyperlinkColumn>
+                <DataGridTextColumn Binding="{Binding Department}" ClipboardContentBinding="{x:Null}" Header="Department" />
+                <DataGridTextColumn Binding="{Binding Location}" ClipboardContentBinding="{x:Null}" Header="Location" />
             </DataGrid.Columns>
         </DataGrid>
 

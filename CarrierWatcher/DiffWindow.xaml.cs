@@ -1,17 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace CarrierWatcher
 {
@@ -22,13 +11,15 @@ namespace CarrierWatcher
     {
         public struct Job
         {
-            public Job(string name, string url)
+            public Job(string name, string department, string location)
             {
                 Name = name;
-                Url = url;
+                Department = department;
+                Location = location;
             }
             public string Name { get; set; }
-            public string Url { get; set; }
+            public string Department { get; set; }
+            public string Location { get; set; }
         }
         public ObservableCollection<Job> RemovedJobs { get; set; } = new ObservableCollection<Job>();
         public ObservableCollection<Job> AddedJobs { get; set; } = new ObservableCollection<Job>();
@@ -39,10 +30,10 @@ namespace CarrierWatcher
 
             foreach (string job in removedJobs)
             {
-                string[] split = job.Split(" ".ToArray(), 2);
-                if (split.Length > 1)
+                var split = job.Split(new string[] { "##" }, System.StringSplitOptions.None);
+                if (split.Length > 2)
                 {
-                    this.RemovedJobs.Add(new Job(split[1], split[0]));
+                    this.RemovedJobs.Add(new Job(split[0], split[1], split[2]));
                 }
                 else
                 {
@@ -53,10 +44,10 @@ namespace CarrierWatcher
 
             foreach (string job in addedJobs)
             {
-                string[] split = job.Split(" ".ToArray(), 2);
-                if (split.Length > 1)
+                var split = job.Split(new string[] { "##" }, System.StringSplitOptions.None);
+                if (split.Length > 2)
                 {
-                    Job newJob = new Job(split[1], split[0]);
+                    Job newJob = new Job(split[0], split[1], split[2]);
                     this.AddedJobs.Add(newJob);
                 }
                 else
@@ -66,17 +57,6 @@ namespace CarrierWatcher
 
             }
 
-        }
-
-        void OnHyperlinkClick(object sender, RoutedEventArgs e)
-        {
-            var context = ((Hyperlink)e.OriginalSource).DataContext;
-            if(context != null && context is Job)
-            {
-                Job job = (Job)context;
-                System.Diagnostics.Process.Start(job.Url);
-            }
-           
         }
 
     }

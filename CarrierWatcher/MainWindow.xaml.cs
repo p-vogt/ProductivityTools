@@ -16,6 +16,12 @@ namespace CarrierWatcher
     /// </summary>
     public partial class MainWindow : Window
     {
+        public class Job
+        {
+            public string Location;
+            public string Department;
+            public string JobName;
+        }
         private const string OLD_DATA_FILE_NAME = @"urls_old.txt";
         private const string NEW_DATA_FILE_NAME = @"urls.txt";
 
@@ -58,6 +64,9 @@ namespace CarrierWatcher
             }
         }
         List<string> _list = new List<string>();
+        List<Job> jobs = new List<Job>();
+
+        List<String> jobStrings = new List<string>();
         List<string> jobsBielefeld = new List<string>();
         int analyzedJobs;
         private void Wb_LoadCompleted(object sender, NavigationEventArgs e)
@@ -74,12 +83,49 @@ namespace CarrierWatcher
             }
 
 
-            Regex regexTable = new Regex(@"<tr class.*?>(.|\s)+?<\/tr>", RegexOptions.IgnoreCase);
+            Regex regexTable = new Regex(@"col_ST_PROJEKT_AUFG_GEBIET[\s\S]+?<\/TR>", RegexOptions.IgnoreCase);
             Regex regexRefnr = new Regex(@"refnr=(?<refnr>\d+)", RegexOptions.IgnoreCase);
 
+            string template = @">(?<value>[\s\S]+?)&nbsp; <\/TD>";
+            string department = "col_ST_PROJEKT_AUFG_GEBIET";
+            string jobDescription = "col_ST_PROJEKT_BEZ";
+            string curLocation = "col_ST_PROJEKT_ORT";
+            Regex regexJob = new Regex(@"<TR(?<value>[\s\S]+?)<\/TR>", RegexOptions.IgnoreCase);
+            Regex regexDepartment = new Regex(department + template, RegexOptions.IgnoreCase);
+            Regex regexJobDescription = new Regex(jobDescription + template, RegexOptions.IgnoreCase);
+            Regex regexLocation = new Regex(curLocation + template, RegexOptions.IgnoreCase);
+            MatchCollection jobMatches = regexJob.Matches(result);
+
+
+            foreach (Match jobMatch in jobMatches)
+            {
+                Job job = new Job();
+
+                MatchCollection matchesDepartment = regexDepartment.Matches(jobMatch.Groups[0].ToString());
+                if (matchesDepartment.Count > 0)
+                {
+                    job.Department = matchesDepartment[0].Groups["value"].Value;
+                }
+                MatchCollection matchesJobName = regexJobDescription.Matches(jobMatch.Groups[0].ToString());
+                if (matchesJobName.Count > 0)
+                {
+                    job.JobName = matchesJobName[0].Groups["value"].Value;
+                }
+                MatchCollection matchesLocation = regexLocation.Matches(jobMatch.Groups[0].ToString());
+                if (matchesLocation.Count > 0)
+                {
+                    job.Location = matchesLocation[0].Groups["value"].Value;
+                }
+                if (!string.IsNullOrWhiteSpace(job.Department) || !string.IsNullOrWhiteSpace(job.JobName) || !string.IsNullOrWhiteSpace(job.Location))
+                {
+                    jobs.Add(job);
+                    jobStrings.Add(job.JobName + "##" + job.Department + "##" + job.Location);
+
+                }
+            }
+            
+
             MatchCollection matchesTable = regexTable.Matches(result);
-
-
             foreach (Match mt in matchesTable)
             {
                 MatchCollection matchesTRefnr = regexRefnr.Matches(mt.Groups[0].ToString());
@@ -100,6 +146,8 @@ namespace CarrierWatcher
             }
             else
             {
+                //TODO
+                analyzedJobs = _list.Count;
                 if (analyzedJobs < _list.Count)
                 {
                     string urlPrefix = "https://jobs.dmgmori.com/main?fn=bm.jobsdetail&refnr=";
@@ -140,11 +188,12 @@ namespace CarrierWatcher
                         }
                         File.Copy(location + NEW_DATA_FILE_NAME, location + OLD_DATA_FILE_NAME);
                     }
-                    File.WriteAllLines(location + NEW_DATA_FILE_NAME, jobsBielefeld);
+                    File.WriteAllLines(location + NEW_DATA_FILE_NAME, jobStrings);
+
                     button.IsEnabled = true;
                     tBoxLocation.IsEnabled = true;
                     btnCompare_Click(null, null);
-                    wb.Navigate("www.google.de/search?q=fertig");
+                   // wb.Navigate("www.google.de/search?q=fertig");
                 }
 
             }
