@@ -249,5 +249,11 @@ namespace CarrierWatcher
                 MessageBox.Show("Eine der Dateien existiert nicht.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void BtnOpenUrl_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start("https://jobs.dmgmori.com/");
+
+        }
     }
 }

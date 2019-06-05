@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CarrierWatcher"
         mc:Ignorable="d"
-        Title="DiffWindow" Height="234" Width="1018.48">
+        Title="DiffWindow" Height="234" Width="1448.049">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="100
