@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.106
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BorderlessGraphicViewer", "BorderlessGraphicViewer\BorderlessGraphicViewer.csproj", "{91D92092-C8B2-4A2E-BADA-90B02F3A1476}"
 EndProject
@@ -94,5 +94,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DD761535-CFCF-4C03-ABDB-70E5289EB3B9}
 	EndGlobalSection
 EndGlobal
