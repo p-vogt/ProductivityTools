@@ -1,7 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows;
 
 namespace Git_Svn_Console
@@ -112,7 +115,16 @@ namespace Git_Svn_Console
 
         private void btnCloneRepo_Click(object sender, RoutedEventArgs e)
         {
+
+
             client.CloneRepository(SvnSourceRepository, DestinationFolder, SvnCloneStartRevision);
+            string trimmedUri = SvnSourceRepository.TrimEnd('/', '\\');
+            var splitted = trimmedUri.Split('/', '\\');
+            string dirName = splitted[splitted.Length - 1];
+            string dirPath = DestinationFolder + "\\" + dirName;
+
+            // no need to wait for the folder to be created since this command will be executed after the checkout has finished
+            client.ChangeDirectoy(dirPath.Replace("\\", "/"));
         }
 
         public new void Show()

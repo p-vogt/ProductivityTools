@@ -67,7 +67,7 @@ namespace Git_Svn_Console
             Directory.CreateDirectory(destinationFolder);
             if (Directory.Exists(destinationFolder))
             {
-                WinAPI.SendString($"cd {destinationFolder}\n", consoleHandle);
+                ChangeDirectoy(destinationFolder);
 
                 WinAPI.SendString($"git svn clone -r{revision}:HEAD {sourceRepo}\n", consoleHandle);
             }
@@ -109,6 +109,11 @@ namespace Git_Svn_Console
                                         $"{repo}\n{branch}";
             }
             return ERROR_INDICATOR;
+        }
+
+        internal void ChangeDirectoy(string destination)
+        {
+            WinAPI.SendString($"cd {destination}\n", consoleHandle);
         }
 
         // to prevent simultaneous readings at one file
