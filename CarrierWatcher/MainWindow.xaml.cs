@@ -104,17 +104,17 @@ namespace CarrierWatcher
                 MatchCollection matchesDepartment = regexDepartment.Matches(jobMatch.Groups[0].ToString());
                 if (matchesDepartment.Count > 0)
                 {
-                    job.Department = matchesDepartment[0].Groups["value"].Value;
+                    job.Department = WebUtility.HtmlDecode(matchesDepartment[0].Groups["value"].Value);
                 }
                 MatchCollection matchesJobName = regexJobDescription.Matches(jobMatch.Groups[0].ToString());
                 if (matchesJobName.Count > 0)
                 {
-                    job.JobName = matchesJobName[0].Groups["value"].Value;
+                    job.JobName = WebUtility.HtmlDecode(matchesJobName[0].Groups["value"].Value);
                 }
                 MatchCollection matchesLocation = regexLocation.Matches(jobMatch.Groups[0].ToString());
                 if (matchesLocation.Count > 0)
                 {
-                    job.Location = matchesLocation[0].Groups["value"].Value;
+                    job.Location = WebUtility.HtmlDecode(matchesLocation[0].Groups["value"].Value);
                 }
                 if (!string.IsNullOrWhiteSpace(job.Department) || !string.IsNullOrWhiteSpace(job.JobName) || !string.IsNullOrWhiteSpace(job.Location))
                 {
